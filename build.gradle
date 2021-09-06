@@ -6,21 +6,22 @@ apply plugin: 'io.spring.dependency-management'
 
 repositories {
     mavenLocal()
-//    mavenCentral()
 }
 
-dependencies {
-    implementation('org.apache.commons:commons-collections4:4.4')
-}
+// 关闭父项目的打包功能
+bootJar.enabled(false)
+
+// 关闭父项目的打包功能
+jar.enabled = false
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
     apply plugin: 'idea'
     apply plugin: 'jacoco'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'maven-publish'
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     // 程序编译的任务编码
@@ -28,17 +29,8 @@ subprojects {
         options.encoding('UTF-8')
     }
 
-    def projectName = 'pippin'
-
-
-    idea {
-        module {
-            // if you hate browsing Javadoc
-            downloadJavadoc = true
-
-            // and love reading sources :)
-            downloadSources = true
-        }
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
 
     repositories {
@@ -47,7 +39,7 @@ subprojects {
             url 'http://localhost:8081/repository/maven-public/'
         }
         mavenLocal()
-//        mavenCentral()
+        mavenCentral()
 
     }
 
@@ -56,8 +48,9 @@ subprojects {
     }
 
     jar {
-        enabled = true
-        version("$project.version")
+        enabled = false
+        // 禁用档案后缀，处理 **-plain.jar
+        archiveClassifier = ''
     }
 
     // 默认不需要打可执行jar包
@@ -72,54 +65,65 @@ subprojects {
                 srcDirs = ['src/main/java']
             }
             resources {
-                srcDirs = ['src/main/resources', "src/main/config/${env}"]
+                srcDirs = ['src/main/resources', "src/main/config/${env}", "*.gradle"]
             }
         }
     }
 
-    task javaDocTask(type: Javadoc) {
-        //        delete("javadoc/")
-        options {
-            encoding = 'UTF-8' //支持中文，避免乱码
-            charSet = 'UTF-8' //支持中文，避免乱码
-            memberLevel = JavadocMemberLevel.PUBLIC //保留 public 的方法
-            linkSource = true
-            author = false //是否保留作者
-            noTree = true //是否生成树状结构
-            noIndex = true
-            noNavBar = true
-        }
+    task docTask(type: Javadoc) {
+        //  delete("javadoc/")
         //定义所有Java源代码
         source = sourceSets.main.allJava
+        options.encoding = 'UTF-8'
+        options.charSet = 'UTF-8'
+        //保留 public 的方法
+        options.memberLevel = JavadocMemberLevel.PUBLIC
+        options.linkSource = true
+        options.links("http://docs.oracle.com/javase/8/docs/api/");
+        //是否保留作者
+        options.author = false
+        //是否生成树状结构
+        options.noTree = true
+        options.noIndex = true
+        options.noNavBar = true
         // destinationDir = file("javadoc/") //生成 javadoc 的目标目录
-        failOnError false //报错不中断
+        failOnError = false //报错不中断
     }
 
-    task javaDocJarTask(type: Jar, dependsOn: javaDocTask) {
-        version("$project.version")
-        archiveClassifier = 'javadoc'       // 文件标记
-        from javaDocTask.destinationDir     // 通过javaDocTask 找到目标路径
+    task docJarTask(type: Jar, dependsOn: docTask) {
+        // 文件标记
+        archiveClassifier="javadoc"
+        // 通过javaDocTask 找到目标路径
+        from docTask.destinationDir
     }
 
-    //自定义打包任务，继承Jar，并且依赖classes，最终编译才打包
-    task sourceTask(type: Jar, dependsOn: [classes]) {
-        // baseName("$projectName")        //生成jar名字
-        version("$project.version")             //定义项目打包的版本号
-        classifier('sources')           //定义文件后缀类型
+    //自定义打包任务，继承Jar，并且依赖classes，最终编译才打包 dependsOn: [classes]
+    task sourceTask(type: Jar,dependsOn: [classes]) {
         from sourceSets.main.allSource  //所有源码读取类型
+        classifier('sources')           //定义文件后缀类型
+        // baseName("$projectName")        //生成jar名字
+//        version("$project.version")             //定义项目打包的版本号
 //        destinationDir(file("$buildDir/source-jar"))    //源代码存储路径
-        manifest {
-            attributes 'packageName': "$projectName" + "-sources",
-                    'Built': "$projectName" + "-Gradle",
-                    'Built-date': new Date().format('yyyy-MM-dd hh:mm:ss'),
-                    'Manifest-Version': archiveVersion
-
-        }
+//        manifest {
+//            attributes 'packageName': "$projectName" + "-sources",
+//                    'Built': "$projectName" + "-Gradle",
+//                    'Built-date': new Date().format('yyyy-MM-dd hh:mm:ss'),
+//                    'Manifest-Version': archiveVersion
+//
+//        }
     }
     //最终打包任务操作，将所有任务放入build
     artifacts {
         archives(sourceTask)
-        archives(javaDocJarTask)
+        archives(docJarTask)
+    }
+    // 所有操作准备好触发该任务
+    gradle.taskGraph.whenReady {
+        tasks.each {
+            if (it.getName().contains('test')) {
+                it.enabled(false)
+            }
+        }
     }
 
 //    publishing {

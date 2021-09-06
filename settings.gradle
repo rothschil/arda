@@ -1,8 +1,7 @@
 rootProject.name = 'pippin'
 
-findProject(':pippin-service')?.name = 'pippin-service'
-findProject(':base-utils')?.name = 'base-utils'
-include(':pippin-service')
-include(':base-utils')
+include('pippin-common')
+include('pippin-common:common-utils')
+include('pippin-service')
 
 

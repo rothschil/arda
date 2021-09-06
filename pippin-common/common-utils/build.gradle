@@ -1,7 +1,10 @@
 apply from : 'dependencies.gradle'
-description = 'base-utils'
+description = 'common-utils'
 group('xyz.wongs.drunkard')
-version '1.0.0-RELEASE'
+version '1.0.0-SNAPSHOT'
+
+jar.enabled = true
+
 dependencies {
 
     api(

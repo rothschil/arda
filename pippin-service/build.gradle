@@ -1,14 +1,15 @@
 archivesBaseName = 'pippin-service'
+
 def env =System.getProperty('env')?:'dev'
 apply from: "dependencies-${env}.gradle"
-version '1.0.2-RELEASE'
+version '1.0.2-SNAPSHOT'
 group('xyz.wongs.gradle')
 
 bootJar.enabled = true
 dependencies {
     implementation('com.auth0:java-jwt:3.8.0')
 
-    implementation(project(':base-utils')) {
+    implementation(project(':pippin-common:common-utils')) {
         exclude group:'com.alibaba', module: 'druid-spring-boot-starter'
         exclude group:'com.oracle', module: 'ojdbc6'
         exclude group:'mysql', module: 'mysql-connector-java'
@@ -16,24 +17,35 @@ dependencies {
 
     implementation(libraries.poi)
 }
+
 bootJar.enabled = true
 
 publishing {
     publications {
         myPublish(MavenPublication) {
+            from(components.java)
             groupId= "$project.group"
-//                groupId = project_group
-//                artifactId = this.name
             artifactId="$project.name"
             version = this.version
-            println(groupId+":"+artifactId+":"+version)
-            from components.java
+            artifact sourceTask
+            artifact docJarTask
         }
     }
     repositories {
+//        maven {
+//            allowInsecureProtocol true
+//            name 'gradle-release'
+//            url 'http://localhost:8081/repository/gradle-release/'
+//            credentials {
+//                username('wongs')
+//                password('123')
+//            }
+//        }
+
         maven {
             allowInsecureProtocol true
-            url 'http://localhost:8081/repository/gradle-release/'
+            name 'gradle-snapshot'
+            url 'http://localhost:8081/repository/gradle-snapshot/'
             credentials {
                 username('wongs')
                 password('123')
