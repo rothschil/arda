@@ -1,0 +1,37 @@
+apply from : 'dependencies.gradle'
+description = 'base-utils'
+group('xyz.wongs.drunkard')
+version '1.0.0-RELEASE'
+dependencies {
+
+    api(
+            libraries.'hibernate-validator',
+            libraries.'commons-compress',
+            libraries.'commons-text',
+            libraries.'commons-fileupload',
+            libraries.'commons-io',
+            libraries.'commons-lang3',
+            libraries.'commons-codec',
+            libraries.'commons-configuration',
+            libraries.'validation-api',
+            libraries.'javax.servlet-api',
+            libraries.'fastjson',
+            libraries.'guava',
+            libraries.'javax-annotation',
+
+            libraries.'hutool-all'
+    )
+    api(libraries.'spring-boot-starter-web')
+
+    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    api group: 'org.hyperic', name: 'sigar', version: '1.6.4'
+
+    api 'com.h2database:h2:1.4.200'
+    api(libraries.'commons-httpclient'){
+        exclude group:'commons-logging', module: 'commons-logging'
+    }
+
+
+}
+
+

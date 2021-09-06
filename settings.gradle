@@ -1,0 +1,8 @@
+rootProject.name = 'pippin'
+
+findProject(':pippin-service')?.name = 'pippin-service'
+findProject(':base-utils')?.name = 'base-utils'
+include(':pippin-service')
+include(':base-utils')
+
+

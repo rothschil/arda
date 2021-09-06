@@ -1,0 +1,468 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.5.0'
+}
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+    mavenLocal()
+//    mavenCentral()
+}
+
+dependencies {
+    implementation('org.apache.commons:commons-collections4:4.4')
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'maven-publish'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+    // 程序编译的任务编码
+    tasks.withType(JavaCompile) {
+        options.encoding('UTF-8')
+    }
+
+    def projectName = 'pippin'
+
+
+    idea {
+        module {
+            // if you hate browsing Javadoc
+            downloadJavadoc = true
+
+            // and love reading sources :)
+            downloadSources = true
+        }
+    }
+
+    repositories {
+        maven {
+            allowInsecureProtocol true
+            url 'http://localhost:8081/repository/maven-public/'
+        }
+        mavenLocal()
+//        mavenCentral()
+
+    }
+
+    test {
+//        useJUnitPlatform()
+    }
+
+    jar {
+        enabled = true
+        version("$project.version")
+    }
+
+    // 默认不需要打可执行jar包
+    bootJar {
+        enabled = false
+    }
+
+    def env = System.getProperty('env') ?: 'dev'
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java']
+            }
+            resources {
+                srcDirs = ['src/main/resources', "src/main/config/${env}"]
+            }
+        }
+    }
+
+    task javaDocTask(type: Javadoc) {
+        //        delete("javadoc/")
+        options {
+            encoding = 'UTF-8' //支持中文，避免乱码
+            charSet = 'UTF-8' //支持中文，避免乱码
+            memberLevel = JavadocMemberLevel.PUBLIC //保留 public 的方法
+            linkSource = true
+            author = false //是否保留作者
+            noTree = true //是否生成树状结构
+            noIndex = true
+            noNavBar = true
+        }
+        //定义所有Java源代码
+        source = sourceSets.main.allJava
+        // destinationDir = file("javadoc/") //生成 javadoc 的目标目录
+        failOnError false //报错不中断
+    }
+
+    task javaDocJarTask(type: Jar, dependsOn: javaDocTask) {
+        version("$project.version")
+        archiveClassifier = 'javadoc'       // 文件标记
+        from javaDocTask.destinationDir     // 通过javaDocTask 找到目标路径
+    }
+
+    //自定义打包任务，继承Jar，并且依赖classes，最终编译才打包
+    task sourceTask(type: Jar, dependsOn: [classes]) {
+        // baseName("$projectName")        //生成jar名字
+        version("$project.version")             //定义项目打包的版本号
+        classifier('sources')           //定义文件后缀类型
+        from sourceSets.main.allSource  //所有源码读取类型
+//        destinationDir(file("$buildDir/source-jar"))    //源代码存储路径
+        manifest {
+            attributes 'packageName': "$projectName" + "-sources",
+                    'Built': "$projectName" + "-Gradle",
+                    'Built-date': new Date().format('yyyy-MM-dd hh:mm:ss'),
+                    'Manifest-Version': archiveVersion
+
+        }
+    }
+    //最终打包任务操作，将所有任务放入build
+    artifacts {
+        archives(sourceTask)
+        archives(javaDocJarTask)
+    }
+
+//    publishing {
+//        publications {
+//            myPublish(MavenPublication) {
+//                groupId= "$project.group"
+////                groupId = project_group
+////                artifactId = this.name
+//                artifactId="$project.name"
+//                version = this.version
+//                println(groupId+":"+artifactId+":"+version)
+//                from components.java
+//            }
+//        }
+//        repositories {
+//            maven {
+//                allowInsecureProtocol true
+//                url 'http://localhost:8081/repository/gradle-release/'
+//                credentials {
+//                    username('wongs')
+//                    password('123')
+//                }
+//            }
+//        }
+//    }
+
+}
+
+
+//sourceSets{
+//    main{
+//        java{
+//            srcDirs=['src/main/java']
+//        }
+//        resources{
+//            srcDirs=['src/main/resources',"src/main/config/${env}"]
+//        }
+//    }
+//}
+
+////程序主类名称
+//def mainClass = 'xyz/wongs/gradle/GradleStart'
+//jar{
+//    // Jar文件名称
+//    archiveBaseName="$projectName"
+//    manifestContentCharset='UTF-8'  //文件编码
+//    metadataCharset('UTF-8')        //内容编码
+//    manifest{
+//        //程序主版本号
+//        attributes 'Manifest-Version':getArchiveVersion().getOrNull(),
+//                'Main-Class':"$mainClass",
+//                'Implementation-Titile':'grad-Tiltle',
+//                'Implementation-Version':archiveVersion     //版本编号
+//
+//    }
+//    // 所有第三方包放置到 lib文件夹下
+//    into('lib'){
+//        //运行时组件
+//        from configurations.runtime
+//    }
+//}
+
+
+// 1、原型创建
+def task1 = task(task1)
+task1.doLast {
+    println '【1、原型创建】最后执行'
+}
+
+// 2、任务属性创建
+def task2 = task([description: ' Is My Task2', group: 'xyz.wongs'], task2)
+task2.doLast {
+    println '【2、任务属性创建】最后执行'
+}
+
+// 3、闭包机制
+task task3 {
+    description(' Is My Task3')
+    group('xyz.wongs')
+    doLast {
+        println '【3、闭包机制】最后执行'
+    }
+}
+
+// 4、任务容器 TaskContainer
+tasks.create('task4') {
+    description(' Is My Task4')
+    group('xyz.wongs')
+
+    doLast {
+        println '【4、任务容器 TaskContainer】最后执行'
+    }
+}
+
+// 一、属性：
+task taskPro {
+    description('Properties Demo')
+    group('xyz.wongs.gradle')
+    doLast {
+        println '【1、Propertie】属性设置'
+    }
+}
+
+// 二、控制
+task taskControl {
+    description('Control Demo')
+    doLast {
+        println '【2、Control】控制设置'
+    }
+}
+taskControl {
+    group(BasePlugin.BUILD_GROUP)
+    enabled = false
+}
+
+// 二、继承
+// 定义Java程序类
+class CustomerTask extends DefaultTask {
+
+    // TaskAction 任务执行注解
+    @TaskAction
+    def doSelf() {
+        // 实现的主体
+        println '【3、Extends-doSelf】 Operation Body'
+    }
+
+    @TaskAction
+    def doLast() {
+        println '【3、Extends-doLast】 doLast Operation'
+    }
+}
+
+task taskExtends(type: CustomerTask) {
+    description('Extends Demo')
+    doFirst {
+        println '【3、Extends】继承'
+    }
+
+    doLast {
+        println '【3、Extends】继承'
+    }
+}
+
+taskExtends {
+    group('xyz.wongs.gradle')
+    enabled = true
+}
+
+// 三、onlyIf
+task taskOnlyIf() {
+    group("xyz.wongs.gradle")
+    description('Extends Demo')
+    onlyIf {
+        def excute = false
+        if (project.hasProperty('flag')) {
+            def pro = project.property('flag')
+            if (pro == 'wongs') {
+                excute = true
+            }
+        }
+        return excute
+    }
+
+    doFirst {
+        println '【4、onlyIf】 doFirst'
+    }
+
+    doLast {
+        println '【4、onlyIf】 doLast'
+    }
+}
+
+// 任务依赖
+
+task taskDependsOnC() {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnC】 doFirst'
+    }
+}
+
+task taskDependsOnD() {
+    // 任务禁用
+    enabled = true
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnD】 doFirst'
+    }
+}
+
+task taskDependsOnB(dependsOn: [taskDependsOnD, taskDependsOnC]) {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnB】 doFirst'
+    }
+}
+
+task taskDependsOnA(dependsOn: [taskDependsOnB]) {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnA】 doFirst'
+    }
+}
+
+
+// 1、依赖错误
+task taskDependsWrong1() {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【6、Wrong1】 doFirst'
+    }
+}
+
+task taskDependsWrong2() {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【6、Wrong2】 doFirst'
+    }
+}
+
+taskDependsWrong1.dependsOn(taskDependsWrong2)
+// 任务2 在 任务1 后执行
+taskDependsWrong2.mustRunAfter taskDependsWrong1
+
+// 2、执行顺序
+task taskDependsShort1() {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【2、Short1】 doFirst'
+    }
+}
+
+task taskDependsShort2() {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【2、Short2】 doFirst'
+    }
+}
+// 任务2 在 任务1 后执行
+taskDependsShort1.dependsOn(taskDependsShort2)
+// 任务2 在 任务1 后执行
+taskDependsShort2.shouldRunAfter taskDependsShort1
+
+// 3、任务替换
+//task build(overwrite: true){
+//    doFirst {
+//        println '【3、任务替换】 build doFirst'
+//    }
+//}
+//
+//def Task task = task([overwrite: true],build){
+//    doFirst {
+//        println '【3、任务替换】 build doFirst'
+//    }
+//}
+
+// 4、任务失败
+def Task taskFailedA = task(taskFailed) {
+    doFirst {
+        if (true) {
+            throw new StopExecutionException('taskFailed 异常')
+        }
+    }
+}
+
+def Task taskFailedB = task(taskFailedB) {
+    dependsOn(taskFailedA)
+    doFirst {
+        println(' [taskFailedB] ')
+    }
+}
+
+// 文件处理任务
+// 1、本地文件
+def Task taskLocalFile = task(taskLocalFile) {
+    doFirst {
+        // 使用相对路径
+        File configFile = file('src/main/resources/config.xml')
+        configFile.createNewFile();
+
+        def _path = 'D:/Code/98_Github/Gradle/grad/src/main/resources/config.xml'
+        // 使用绝对路径
+        configFile = file(_path)
+        println('【1、本地文件  使用绝对路径】' + configFile.absolutePath)
+
+        // 使用一个文件对象
+        configFile = file(new File(_path))
+        println('【1、本地文件  使用文件对象】' + configFile.exists())
+    }
+}
+
+// 2、文件集合
+def Task taskCollectionFile = task(taskCollectionFile) {
+    doFirst {
+        File _fileList = file('gvy/src/gvy01')
+        def FileCollection collection = files(_fileList.listFiles())    // 获取文件列表
+        collection.each { println(it) }   // 遍历文件列表
+        Set _set1 = collection.files        // 文件集合转为 Set
+        Set _set2 = collection as Set
+        List _list = collection as List     // 文件集合转为 List
+        String _path = collection.asPath    // 文件集合转为 String
+    }
+}
+
+// 3、文件树
+def Task taskFileTree = task(taskFileTree) {
+    doFirst {
+        FileTree _fileTree = fileTree('gvy/src/gvy01')  // 1、指定目录创建文件树对象
+        _fileTree.include '**/*.groovy'     // 添加包含指定文件
+        _fileTree.exclude '**/del*'         // 添加排除指定文件
+        // 2、使用路径创建文件树对象，同时指定包含的文件
+        _fileTree = fileTree('gvy/src').include('**/*.groovy')
+
+        _fileTree = fileTree('gvy/src') {   // 3、通过闭包创建文件树
+            include '**/*.groovy'
+        }
+
+        _fileTree = fileTree(dir: 'gvy/src/gvy01', include: '**/*.groovy')  // 通过map创建文件树
+        _fileTree = fileTree(dir: 'gvy/src/gvy01', includes: ['**/*.groovy', '**/*.xml'])
+        _fileTree = fileTree(dir: 'gvy/src/gvy01', include: '**/*.groovy', exclude: '**/*del*/**')
+
+        _fileTree.each { File file ->        // 遍历文件树的所有文件
+            println(file)
+        }
+    }
+}
+
+// 4、文件拷贝
+task taskFileCopy(type: Copy) {
+    from 'src/main/resources/config.log'
+    // 从Zip压缩文件中拷贝内容
+    from zipTree('src/main/resources/00.zip')
+    into 'src/main/java/'
+    // 添加过虑条件来指定包含或排除的文件
+    include '**/*.png'
+}
+
+// 5、归档文件
+//task taskPlaceFile(type: Zip){
+//    from 'gvy/src/gvy01'
+//    archiveBaseName = 'placeFile'
+//}
+//
+//task taskEach(){
+//    FileTree tar = zipTree('build/distributions/placeFile-1.0-SNAPSHOT.zip')
+//    ta
