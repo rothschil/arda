@@ -4,15 +4,16 @@ plugins {
 }
 apply plugin: 'io.spring.dependency-management'
 
+version project_version
+group project_group
+
 repositories {
     mavenLocal()
+    mavenCentral()
 }
 
-// 关闭父项目的打包功能
-bootJar.enabled(false)
-
-// 关闭父项目的打包功能
 jar.enabled = false
+bootJar.enabled = false
 
 subprojects {
     apply plugin: 'java'
@@ -22,8 +23,12 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+
+    version project_version
+    group project_group
+
+    sourceCompatibility = project_jdk
+    targetCompatibility = project_jdk
     // 程序编译的任务编码
     tasks.withType(JavaCompile) {
         options.encoding('UTF-8')
@@ -87,7 +92,8 @@ subprojects {
         options.noIndex = true
         options.noNavBar = true
         // destinationDir = file("javadoc/") //生成 javadoc 的目标目录
-        failOnError = false //报错不中断
+        //报错不中断
+        failOnError = false
     }
 
     task docJarTask(type: Jar, dependsOn: docTask) {
@@ -99,24 +105,44 @@ subprojects {
 
     //自定义打包任务，继承Jar，并且依赖classes，最终编译才打包 dependsOn: [classes]
     task sourceTask(type: Jar,dependsOn: [classes]) {
-        from sourceSets.main.allSource  //所有源码读取类型
-        classifier('sources')           //定义文件后缀类型
-        // baseName("$projectName")        //生成jar名字
-//        version("$project.version")             //定义项目打包的版本号
-//        destinationDir(file("$buildDir/source-jar"))    //源代码存储路径
-//        manifest {
-//            attributes 'packageName': "$projectName" + "-sources",
-//                    'Built': "$projectName" + "-Gradle",
-//                    'Built-date': new Date().format('yyyy-MM-dd hh:mm:ss'),
-//                    'Manifest-Version': archiveVersion
-//
-//        }
+        //所有源码读取类型
+        from sourceSets.main.allSource
+        //定义文件后缀类型
+        classifier('sources')
     }
     //最终打包任务操作，将所有任务放入build
     artifacts {
         archives(sourceTask)
         archives(docJarTask)
     }
+
+    publishing {
+        publications {
+            myMaven(MavenPublication) {
+                groupId= "$project.group"
+                artifactId="$project.name"
+                version = "$project.version"
+                println("$project.name" + ": version = "+version)
+
+                from components.java
+                artifact sourceTask
+                artifact docJarTask
+            }
+        }
+        repositories {
+            maven {
+                def releasesRepoUrl = "http://localhost:8081/repository/gradle-release/"
+                def snapshotsRepoUrl = "http://localhost:8081/repository/gradle-snapshot/"
+                url = this.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                allowInsecureProtocol true
+                credentials {
+                    username('wongs')
+                    password('123')
+                }
+            }
+        }
+    }
+
     // 所有操作准备好触发该任务
     gradle.taskGraph.whenReady {
         tasks.each {
@@ -125,31 +151,6 @@ subprojects {
             }
         }
     }
-
-//    publishing {
-//        publications {
-//            myPublish(MavenPublication) {
-//                groupId= "$project.group"
-////                groupId = project_group
-////                artifactId = this.name
-//                artifactId="$project.name"
-//                version = this.version
-//                println(groupId+":"+artifactId+":"+version)
-//                from components.java
-//            }
-//        }
-//        repositories {
-//            maven {
-//                allowInsecureProtocol true
-//                url 'http://localhost:8081/repository/gradle-release/'
-//                credentials {
-//                    username('wongs')
-//                    password('123')
-//                }
-//            }
-//        }
-//    }
-
 }
 
 

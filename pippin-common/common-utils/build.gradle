@@ -1,7 +1,6 @@
 apply from : 'dependencies.gradle'
+archivesBaseName = 'common-utils'
 description = 'common-utils'
-group('xyz.wongs.drunkard')
-version '1.0.0-SNAPSHOT'
 
 jar.enabled = true
 
