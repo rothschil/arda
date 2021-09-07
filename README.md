@@ -3,13 +3,15 @@
 
 ## 1. 概述
 
-   皮瑞格林·图克，他的朋友称他为皮平，是托尔金魔幻小说的角色，霍比特人。他是佛罗多·巴金斯最年轻和亲爱的朋友。 皮瑞格林是帕拉丁二世·图克及其妻爱格拉庭‧河岸的唯一儿子，所以帕拉丁图克二世于第四世纪13年去世后，皮瑞格林继承了夏尔主帅的职位。他有三个姐姐：波尔·图克、平珀诺·图克及波纹卡·图克。
+   `Pippin`, was a `Hobbit` of the Shire, and one of `Frodo Baggins'` youngest, but closest friends. He was a member of the Fellowship of the Ring and later became the thirty-second Thain of the Shire。 
 
 <div style="text-align: center;">
 
 ![皮平](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/Pippinprintscreen.jpg)
 
 </div>
+
+`Gradle` 是一个基于`Apache Ant`和 `Apache Maven`概念的项目自动化构建工具，它使用`Groovy`语言来声明项目设置，抛弃了`XML`的各类繁琐配置。面向Java应用为主，当前支持的语言有`Java`、`Groovy`、`Kotlin`、`Scala`、`C++`、`Swift`、`JavaScript`，计划未来支持更多的语言。
 
  本工程主要是针对 `Gradle`的学习入门类项目，也是借助于托尔金指环王的人物命名的工程，在学习本工程之前，对学习者有如下要求：
 
@@ -75,6 +77,19 @@
 
 ## 4. Maven与Gradle比较
 
+- 灵活性：二者都提供约定优于配置。但 `Maven` 显得非常僵化，没法定制，一切都是 Maven给定的，不适用于许多自动化问题。另一方面，`Gradle` 是在考虑到授权和负责任的用户的情况下构建的。
+- 性能： `Gradle` 特有的增量机制，所以相对来说缩短构建所需的时间
+- 用户体验：`Gradle` 提供了一个基于 Web 的交互式 UI 用于调试和优化构建：构建扫描。这些也可以在本地托管，以允许组织收集构建历史并进行趋势分析、比较构建以进行调试或优化构建时间。
+- 依赖管理：`Gradle` 允许生产者声明`api`和`implementation`依赖项，以防止不需要的库泄漏到使用者的类路径中。`Maven` 允许发布者通过可选的依赖项提供元数据。
+
+具体在性能上，`Gradle` 具备三个明显特征：
+
+- 增量性：`Gradle` 通过跟踪任务的输入和输出并只运行必要的内容来避免工作，并且只在可能的情况下处理更改的文件。
+- 构建缓存：使用相同的输入重用任何其他 `Gradle` 构建的构建输出，包括在机器之间。
+- `Gradle` 守护进程：一个长期存在的进程，它使构建信息在内存中保持“热”状态
+
+![Gradle与Maven性能比较](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907161922.png)
+
 ## 5. 内容
 
 ### 5.1. 环境构建
@@ -111,3 +126,42 @@ build.gradle、setting.gradle
 jar、source.jar、doc.jar
 
 #### 5.3.6. 常用命令
+
+### 5.4. 进阶内容
+
+#### 5.4.1. 多环境
+
+目开发过程中，有开发环境、测试环境、生产环境，每个环境的配置也相同，与`Maven`项目类似，`Gradle`配置多环境用在环境属性文件和依赖配置 两个地方，实现可分为以下步骤：
+- 通过约定规则，编写多环境信息
+- 在`build.gradle`文件中添加获取
+
+~~~gradle
+def env=System.getProperty('env')?:'dev'
+~~~
+
+- 最后在执行过程中添加参数：
+
+~~~cmd
+-D{属性名称}={内容}
+~~~
+
+
+#### 5.4.2. 插件
+
+| 名称 | 描述 |
+|--|--|
+| Java插件 | 为Java提供编辑、测试和打包的能力 |
+| java-library插件 | 构建本地依赖的插件 |
+| maven-publish插件 | 项目发布到仓库的插件 |
+| Springboot插件 | 提供Spring Boot支持，允许打包可执行jar或war |
+| War插件 | 继承Java插件，为Web应用提供War包的功能 |
+| IDEA插件 | 生成IDEA的工程文件，使得工程快速导入IDEA工程中 |
+| Jetty插件 | 继承War插件，为应用程序添加三个主要任务，把应用部署到Jetty Web容器 |
+| Application插件 | 创建可执行JVM应用，直接打成包含启动脚本Tar和Zip包 |
+| CheckStyle插件 | 为工程添加CheckStyle质量检测 |
+| FindBugs插件 | 为工程添加FindBugs质量检测 |
+| PMD插件 | 为工程添加PMD质量检测 |
+| JaCoCo插件 | 分析单元测试覆盖率的工具 |
+| Sonar插件 | 分析检查代码质量 |
+
+#### 5.4.3. 项目发布
