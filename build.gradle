@@ -84,7 +84,7 @@ subprojects {
         //保留 public 的方法
         options.memberLevel = JavadocMemberLevel.PUBLIC
         options.linkSource = true
-        options.links("http://docs.oracle.com/javase/8/docs/api/");
+        options.links("http://docs.oracle.com/javase/8/docs/api/")
         //是否保留作者
         options.author = false
         //是否生成树状结构
@@ -195,7 +195,7 @@ task1.doLast {
 }
 
 // 2、任务属性创建
-def task2 = task([description: ' Is My Task2', group: 'xyz.wongs'], task2)
+def task2 = task([description: ' Is My Task2', group: 'xyz.wongs'],task2)
 task2.doLast {
     println '【2、任务属性创建】最后执行'
 }

@@ -3,13 +3,7 @@
 
 ## 1. 概述
 
-   `Pippin`, was a `Hobbit` of the Shire, and one of `Frodo Baggins'` youngest, but closest friends. He was a member of the Fellowship of the Ring and later became the thirty-second Thain of the Shire。 
-
-<div style="text-align: center;">
-
-![皮平](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/Pippinprintscreen.jpg)
-
-</div>
+`Pippin`, was a `Hobbit` of the Shire, and one of `Frodo Baggins'` youngest, but closest friends. He was a member of the Fellowship of the Ring and later became the thirty-second Thain of the Shire。 
 
 `Gradle` 是一个基于`Apache Ant`和 `Apache Maven`概念的项目自动化构建工具，它使用`Groovy`语言来声明项目设置，抛弃了`XML`的各类繁琐配置。面向Java应用为主，当前支持的语言有`Java`、`Groovy`、`Kotlin`、`Scala`、`C++`、`Swift`、`JavaScript`，计划未来支持更多的语言。
 
@@ -44,7 +38,7 @@
 |---groovy-demo         ------------------Groovy基本语法
 |   \---src
 |       +---gvy01       ------------------
-|       \---gvy02       ------------------
+|       +---gvy02       ------------------
 |---pippin-common       ------------------通用模块部分
 |   \---common-utils    ------------------常用工具包，集成通用基类，供其他模块引入
 │      │  build.gradle  ------------------工具包的构建文件
@@ -90,25 +84,114 @@
 
 ![Gradle与Maven性能比较](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907161922.png)
 
+综述，`Maven` 更加标准，`Gradle` 更加简洁灵活。
+
+
 ## 5. 内容
 
 ### 5.1. 环境构建
 
 #### 5.1.1. JDK、Maven、Nexus配置
 
-不在本工程内容中，自行百度补充。
+不在本工程内容中，自行百度脑补。
 
 #### 5.1.2. Gradle环境配置
 
-Windows下配置Gradle环境配置
+![官网](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173500.png)
+
+- Windows下配置Gradle环境配置，需要先从  [官网](https://gradle.org/releases/)  下载
+- 将下载的压缩文件解压到一个路径下，例如：`D:\ProgramFiles\Gradle\gradle-7.2`
+- 配置环境变量 `GRADLE_HOME` ，值为 `D:\ProgramFiles\Gradle\gradle-7.2`
+- 将  `GRADLE_HOME` 添加到 path
+- 再添加环境变量 `GRADLE_USER_HOME` ，这个是用户空间，指向磁盘中一个文件夹即可，例如：`E:\Repertory\RepositoryGradle\.gradle` 这个很重要
+
+![演示](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173930.png)
 
 #### 5.1.3. IDEA工具集成
 
+![20210907170523](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907170523.png)
+
+![20210907174102](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907174102.png)
+
+ `IDEA `中的 `Gradle user home` 后的选项内容将是配置的 `GRADLE_USER_HOME` 环境变量。 这个点非常会让人忽视的。
+ 
+`IDEA` 集成 `Gradle`需要安装插件，否则无法使用，插件不论你在线安装还是离线安装都可以，我使用的IDEA版本是 `2021.1.2`。
+
+![20210907165919](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165919.png)
+
 ##### 5.1.3.1. IDEA配置Gradle
 
-##### 5.1.3.2. 创建Java工程项目
+##### 5.1.3.2. 创建和认识Java工程项目
 
-build.gradle、setting.gradle
+![New Project_1](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165803.png)
+
+![New Project_2](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165727.png)
+
+- Name：项目名称
+- Location：所在的路径
+- GroupId、ArtifactId、Version
+
+这些都与Maven雷同。
+
+![New Project_3](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907172055.png)
+
+运行 `gradle build` 的输出结果
+
+~~~cmd
+17:21:31: Executing task 'build'...
+
+> Task :compileJava NO-SOURCE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :assemble UP-TO-DATE
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build UP-TO-DATE
+
+BUILD SUCCESSFUL in 131ms
+1 actionable task: 1 up-to-date
+17:21:31: Task execution finished 'build'.
+~~~
+
+![基本常用任务](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907172205.png)
+
+- build.gradle
+
+这个文件非常重要， `Gradle` 的核心配置文件，相当于 `Maven` 中的 `POM` ，此后工程开发都围绕着这个文件来编写。
+
+~~~gradle
+plugins { //插件
+    id 'java'
+}
+
+group 'xyz.wongs.gradle'    // group 分组
+version '1.0.0-SNAPSHOT'    // 版本
+
+repositories {  // 仓库
+    mavenCentral()
+}
+
+dependencies {  // 依赖
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {  // 测试
+    useJUnitPlatform()
+}
+~~~
+
+- setting.gradle
+
+这是针对模块的引入配置文件，可以在此管理每个模块激活状态，一般在添加新模块的过程中使用。
+
+~~~gradle
+rootProject.name = 'demo'
+~~~
 
 ### 5.2. Groovy
 
@@ -133,7 +216,7 @@ jar、source.jar、doc.jar
 
 目开发过程中，有开发环境、测试环境、生产环境，每个环境的配置也相同，与`Maven`项目类似，`Gradle`配置多环境用在环境属性文件和依赖配置 两个地方，实现可分为以下步骤：
 - 通过约定规则，编写多环境信息
-- 在`build.gradle`文件中添加获取
+- 在 `build.gradle`文件中添加获取
 
 ~~~gradle
 def env=System.getProperty('env')?:'dev'
