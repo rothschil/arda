@@ -1,4 +1,3 @@
-
 ![gradle](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/gradle.png)
 
 ## 1. 概述
@@ -87,15 +86,13 @@
 
 综述，`Maven` 更加标准，`Gradle` 更加简洁灵活。
 
-## 5. 内容
+## 5. 环境构建
 
-### 5.1. 环境构建
-
-#### 5.1.1. JDK、Maven、Nexus版本要求
+### 5.1. JDK、Maven、Nexus版本要求
 
 本工程运行环境对应的版本 `JDK`版本在 `1.8`、`Maven`版本 `3.6`、`Nexus 3.34+ ` 三者的安装不在本工程内容中，自行百度脑补。
 
-#### 5.1.2. Gradle环境配置
+### 5.2. Gradle环境配置
 
 ![官网](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173500.png)
 
@@ -106,7 +103,7 @@
 - 再添加环境变量 `GRADLE_USER_HOME` ，这个是用户空间，指向磁盘中一个文件夹即可，例如：`E:\Repertory\RepositoryGradle\.gradle` 这个很重要
 - `GRADLE_USER_HOME` 目录下我们新建两个文件，`gradle.properties`、`init.gradle`
 
-##### 5.1.2.1. gradle.properties
+#### 5.2.1. gradle.properties
 
 `Gradle` 配置项，主要为了开启多线程模式，`Gradle` 运行时候效率更快一点
 
@@ -116,11 +113,12 @@ org.gradle.parallel=true
 org.gradle.caching=true
 ~~~
 
-##### 5.1.2.2. init.gradle
+#### 5.2.2. init.gradle
 
 `Gradle` 全局配置，主要定义定义仓库
 
 ~~~gradle
+
 allprojects{
    
     repositories {
@@ -151,17 +149,17 @@ allprojects{
         }
     }
 }
-~~~~
+~~~
 
 ![演示](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173930.png)
 
-#### 5.1.3. IDEA工具集成
+### 5.3. IDEA工具集成
 
 我使用的IDEA版本是 `2021.1.2`。
 
 ![20210907170523](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907170523.png)
 
-##### 5.1.3.1. IDEA配置Gradle
+#### 5.3.1. IDEA配置Gradle
 
 `IDEA` 集成 `Gradle`需要安装插件，否则无法使用，插件不论你在线安装还是离线安装都可以。
 
@@ -171,7 +169,7 @@ allprojects{
 
  `IDEA `中的 `Gradle user home` 后的选项内容将是配置的 `GRADLE_USER_HOME` 环境变量。 这个点非常会让人忽视的。
 
- ##### 5.1.3.2. 创建和认识Java工程项目
+ #### 5.1.3.2. 创建和认识Java工程项目
 
 ![New Project_1](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165803.png)
 
@@ -245,7 +243,7 @@ test {  // 测试
 rootProject.name = 'demo'
 ~~~
 
-#### 5.1.4. Gradle Wrapper
+### 5.4. Gradle Wrapper
 
 在 `Maven`中，开发者和项目服务器都需要配置有相同的 `Maven`版本，才能保证应用正常编译执行，`Gradle`提供一个 `Gradle Wrapper`概念，可以项目中自带Gradle的处理环境，`Gradle Wrapper`简化 `Gradle`本身的安装、部署，避免 `Gradle`版本不通带来的各种问题。
 
@@ -266,7 +264,7 @@ rootProject.name = 'demo'
 
 ![20210908093313](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093313.png)
 
-#### 5.1.5. 代码分析器
+### 5.5. 代码分析器
 
 所有开发人员编写的代码，在程序上线之前都一定要进行性能的检测，而对于 `Gradle` 项目来讲，也需要清楚的知道，项目代码构建的情况，包括构建环境、依赖库以及程序性能上存在的问题，这样方便与人沟通。为了解决这样的构建问题，所以在 `Gradle` 中就提供了一个 **Build Scan** 代码扫描工具， 这个工具会自动的将本地构建的过程发送到指定服务器端，并且由服务器端上生成一个完整的报告。
 
@@ -286,13 +284,13 @@ gradlew build --scan
 
 ![报告内容](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094417.png)
 
-### 5.2. Groovy
+## 6. Groovy
 
 `Apache` 的`Groovy`是`Java`平台上设计的面向对象编程语言。运行于`Java`虚拟机上的`Java`字节码，并与其他`Java`代码和库进行互操作。由于其运行在JVM上的特性，Groovy可以使用其他Java语言编写的库。`Groovy`的语法与`Java`非常相似，大多数`Java`代码也符合`Groovy`的语法规则。
 
 ![20210908095332](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095332.png)
 
-#### 5.2.1. 环境构建
+### 6.1. 环境构建
 
 官网下载 `Groovy`，当前最新版本 **3.0.7**， `Groovy`是一个压缩的工具包，对公工具包解压，并讲 `Groovy`下的bin路径，配置到本地操作系统环境 `path` 属性。
 
@@ -300,13 +298,13 @@ gradlew build --scan
 
 ![20210908095612](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095612.png)
 
-##### 5.2.1.1. groovysh
+#### 6.1.1. groovysh
 
 `Groovy` 提供一个交互式编程，`groovysh`
 
 ![20210908095756](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095756.png)
 
-##### 5.2.1.2. IDEA创建Groovy
+#### 6.1.2. IDEA创建Groovy
 
 这里在 `Gradle`项目中新建 `Groovy` 项目 模块， `Groovy libray` 选择 `Groovy` 的文件路径
 
@@ -330,22 +328,32 @@ println('Hello Groovy')
 
 ![20210908101202](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908101202.png)
 
-#### 5.2.2. 语法结构
+### 6.2. 语法结构
 
-### 5.3. Gradle详解
+##### 6.2.1. 数据类型
 
-#### 5.3.1. 任务创建、属性、继承
-#### 5.3.2. 任务依赖
-#### 5.3.3. 文件处理
-#### 5.3.4. 日志处理
-#### 5.3.5. 项目打包
+![20210908104458](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908104458.png)
+
+#### 5.2.2.3. 列表
+
+列表是用于存储数据项集合的结构。在 Groovy 中，List 保存了一系列对象引用。List 中的对象引用占据序列中的位置，并通过整数索引来区分。列表文字表示为一系列用逗号分隔并用方括号括起来的对象。groovy 列表使用索引操作符 [] 索引。列表索引从 0 开始，指第一个元素。groovy 中的一个列表中的数据可以是任意类型。这 java 下集合列表有些不同，java 下的列表是同种类型的数据集合。
+
+#### 5.2.2.4. 文件
+
+## 5.3. Gradle详解
+
+### 5.3.1. 任务创建、属性、继承
+### 5.3.2. 任务依赖
+### 5.3.3. 文件处理
+### 5.3.4. 日志处理
+### 5.3.5. 项目打包
 jar、source.jar、doc.jar
 
-#### 5.3.6. 常用命令
+### 5.3.6. 常用命令
 
-### 5.4. 进阶内容
+## 5.4. 进阶内容
 
-#### 5.4.1. 多环境
+### 5.4.1. 多环境
 
 目开发过程中，有开发环境、测试环境、生产环境，每个环境的配置也相同，与`Maven`项目类似，`Gradle`配置多环境用在环境属性文件和依赖配置 两个地方，实现可分为以下步骤：
 - 通过约定规则，编写多环境信息
@@ -361,7 +369,7 @@ def env=System.getProperty('env')?:'dev'
 -D{属性名称}={内容}
 ~~~
 
-#### 5.4.2. 插件
+### 5.4.2. 插件
 
 | 名称 | 描述 |
 |--|--|
@@ -379,4 +387,4 @@ def env=System.getProperty('env')?:'dev'
 | JaCoCo插件 | 分析单元测试覆盖率的工具 |
 | Sonar插件 | 分析检查代码质量 |
 
-#### 5.4.3. 项目发布
+### 5.4.3. 项目发布
