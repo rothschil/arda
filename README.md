@@ -33,8 +33,8 @@
 |---.gradle
 |---gradle              ------------------Gradle配置文件
 │  └─wrapper
-│          gradle-wrapper.jar
-│          gradle-wrapper.properties    --Gradle当前配置内容
+│          gradle-wrapper.jar           --gradle-wrapper 主题功能
+│          gradle-wrapper.properties    --Gradle当前配置的版本，以及从哪里获取
 |---groovy-demo         ------------------Groovy基本语法
 |   \---src
 |       +---gvy01       ------------------
@@ -63,7 +63,8 @@
 │  build.gradle         ------------------根目录的构建核心文件
 │  gradle.properties    ------------------根目录的属性文件，这是固定命名
 │  gradlew              
-│  gradlew.bat
+│  gradlew.bat          ------------------Gradle Wrapper
+│  LICENSE              ------------------开源授权协议
 │  README.md            ------------------项目描述
 │  settings.gradle      ------------------Gradle模块 配置文件
 
@@ -86,14 +87,13 @@
 
 综述，`Maven` 更加标准，`Gradle` 更加简洁灵活。
 
-
 ## 5. 内容
 
 ### 5.1. 环境构建
 
-#### 5.1.1. JDK、Maven、Nexus配置
+#### 5.1.1. JDK、Maven、Nexus版本要求
 
-不在本工程内容中，自行百度脑补。
+本工程运行环境对应的版本 `JDK`版本在 `1.8`、`Maven`版本 `3.6`、`Nexus 3.34+ ` 三者的安装不在本工程内容中，自行百度脑补。
 
 #### 5.1.2. Gradle环境配置
 
@@ -104,24 +104,74 @@
 - 配置环境变量 `GRADLE_HOME` ，值为 `D:\ProgramFiles\Gradle\gradle-7.2`
 - 将  `GRADLE_HOME` 添加到 path
 - 再添加环境变量 `GRADLE_USER_HOME` ，这个是用户空间，指向磁盘中一个文件夹即可，例如：`E:\Repertory\RepositoryGradle\.gradle` 这个很重要
+- `GRADLE_USER_HOME` 目录下我们新建两个文件，`gradle.properties`、`init.gradle`
+
+##### 5.1.2.1. gradle.properties
+
+`Gradle` 配置项，主要为了开启多线程模式，`Gradle` 运行时候效率更快一点
+
+~~~properties
+org.gradle.daemon=true
+org.gradle.parallel=true
+org.gradle.caching=true
+~~~
+
+##### 5.1.2.2. init.gradle
+
+`Gradle` 全局配置，主要定义定义仓库
+
+~~~gradle
+allprojects{
+   
+    repositories {
+   
+        def ALIYUN_REPOSITORY_URL = 'http://maven.aliyun.com/nexus/content/groups/public'
+        def ALIYUN_JCENTER_URL = 'http://maven.aliyun.com/nexus/content/repositories/jcenter'
+        all {
+            ArtifactRepository repo ->
+            if(repo instanceof MavenArtifactRepository){
+   
+                def url = repo.url.toString()
+                if (url.startsWith('https://repo1.maven.org/maven2')) {
+   
+                    project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_REPOSITORY_URL."
+                    remove repo
+                }
+                if (url.startsWith('https://jcenter.bintray.com/')) {
+   
+                    project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_JCENTER_URL."
+                    remove repo
+                }
+            }
+        }
+        maven {
+            allowInsecureProtocol = true
+            url ALIYUN_REPOSITORY_URL
+            url ALIYUN_JCENTER_URL
+        }
+    }
+}
+~~~~
 
 ![演示](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173930.png)
 
 #### 5.1.3. IDEA工具集成
 
+我使用的IDEA版本是 `2021.1.2`。
+
 ![20210907170523](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907170523.png)
+
+##### 5.1.3.1. IDEA配置Gradle
+
+`IDEA` 集成 `Gradle`需要安装插件，否则无法使用，插件不论你在线安装还是离线安装都可以。
+
+![20210907165919](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165919.png)
 
 ![20210907174102](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907174102.png)
 
  `IDEA `中的 `Gradle user home` 后的选项内容将是配置的 `GRADLE_USER_HOME` 环境变量。 这个点非常会让人忽视的。
- 
-`IDEA` 集成 `Gradle`需要安装插件，否则无法使用，插件不论你在线安装还是离线安装都可以，我使用的IDEA版本是 `2021.1.2`。
 
-![20210907165919](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165919.png)
-
-##### 5.1.3.1. IDEA配置Gradle
-
-##### 5.1.3.2. 创建和认识Java工程项目
+ ##### 5.1.3.2. 创建和认识Java工程项目
 
 ![New Project_1](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165803.png)
 
@@ -159,6 +209,8 @@ BUILD SUCCESSFUL in 131ms
 
 ![基本常用任务](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907172205.png)
 
+上图中罗列的基本任务，可以先认识下，下来重点描述下这两个文件 `build.gradle`、`setting.gradle`，这是我们`Gradle`工程开发最核心的两个文件。
+
 - build.gradle
 
 这个文件非常重要， `Gradle` 的核心配置文件，相当于 `Maven` 中的 `POM` ，此后工程开发都围绕着这个文件来编写。
@@ -193,9 +245,90 @@ test {  // 测试
 rootProject.name = 'demo'
 ~~~
 
+#### 5.1.4. Gradle Wrapper
+
+在 `Maven`中，开发者和项目服务器都需要配置有相同的 `Maven`版本，才能保证应用正常编译执行，`Gradle`提供一个 `Gradle Wrapper`概念，可以项目中自带Gradle的处理环境，`Gradle Wrapper`简化 `Gradle`本身的安装、部署，避免 `Gradle`版本不通带来的各种问题。
+
+在任意目录中 执行 `gradle wrapper`
+
+![20210908092359](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908092359.png)
+
+切换版本
+
+| 操作 | 描述 |
+|--|--|
+| 切换 6.8 版本 | gradle wrapper --gradle-version 6.8 |
+| 切换 6.5 版本 | gradle wrapper --gradle-version 6.5 |
+
+![20210908093052](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093052.png)
+
+执行上述命令， `gradle-wrapper.properties` 中 `distributionUrl` 后的 URL 变为 `https\://services.gradle.org/distributions/gradle-6.8-bin.zip` ，版本切换成功。
+
+![20210908093313](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093313.png)
+
+#### 5.1.5. 代码分析器
+
+所有开发人员编写的代码，在程序上线之前都一定要进行性能的检测，而对于 `Gradle` 项目来讲，也需要清楚的知道，项目代码构建的情况，包括构建环境、依赖库以及程序性能上存在的问题，这样方便与人沟通。为了解决这样的构建问题，所以在 `Gradle` 中就提供了一个 **Build Scan** 代码扫描工具， 这个工具会自动的将本地构建的过程发送到指定服务器端，并且由服务器端上生成一个完整的报告。
+
+这个分析器是 `gradle wrapper` 提供的
+
+~~~cmd
+gradlew build --scan
+~~~
+
+![20210908093948](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093948.png)
+
+输入邮箱，在邮箱中确认
+
+![首页](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094121.png)
+
+![邮箱确认](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094306.png)
+
+![报告内容](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094417.png)
+
 ### 5.2. Groovy
 
+`Apache` 的`Groovy`是`Java`平台上设计的面向对象编程语言。运行于`Java`虚拟机上的`Java`字节码，并与其他`Java`代码和库进行互操作。由于其运行在JVM上的特性，Groovy可以使用其他Java语言编写的库。`Groovy`的语法与`Java`非常相似，大多数`Java`代码也符合`Groovy`的语法规则。
+
+![20210908095332](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095332.png)
+
 #### 5.2.1. 环境构建
+
+官网下载 `Groovy`，当前最新版本 **3.0.7**， `Groovy`是一个压缩的工具包，对公工具包解压，并讲 `Groovy`下的bin路径，配置到本地操作系统环境 `path` 属性。
+
+![20210908095718](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095718.png)
+
+![20210908095612](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095612.png)
+
+##### 5.2.1.1. groovysh
+
+`Groovy` 提供一个交互式编程，`groovysh`
+
+![20210908095756](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095756.png)
+
+##### 5.2.1.2. IDEA创建Groovy
+
+这里在 `Gradle`项目中新建 `Groovy` 项目 模块， `Groovy libray` 选择 `Groovy` 的文件路径
+
+![20210908100620](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908100620.png)
+
+![20210908100716](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908100716.png)
+
+- 创建包名为 `xyz.wongs.groovy`
+- 编写脚本，这里要选择 `Groovy Script`
+
+![20210908100908](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908100908.png)
+
+编写我们第一个 `Groovy`代码，`Groovy` 与`Python`非常类似。
+
+~~~groovy
+package xyz.wongs.groovy
+
+// python 3的语法结构
+println('Hello Groovy')
+~~~
+
+![20210908101202](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908101202.png)
 
 #### 5.2.2. 语法结构
 
@@ -227,7 +360,6 @@ def env=System.getProperty('env')?:'dev'
 ~~~cmd
 -D{属性名称}={内容}
 ~~~
-
 
 #### 5.4.2. 插件
 
