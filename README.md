@@ -37,7 +37,7 @@
 |---groovy-demo         ------------------Groovy基本语法
 |   \---src
 |       +---gvy01       ------------------
-|       +---gvy02       ------------------
+|       +---gvy03       ------------------
 |---pippin-common       ------------------通用模块部分
 |   \---common-utils    ------------------常用工具包，集成通用基类，供其他模块引入
 │      │  build.gradle  ------------------工具包的构建文件
@@ -334,11 +334,157 @@ println('Hello Groovy')
 
 ![20210908104458](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908104458.png)
 
-#### 6.2.2. 列表
+#### 6.2.2. 数组
 
-列表是用于存储数据项集合的结构。在 Groovy 中，List 保存了一系列对象引用。List 中的对象引用占据序列中的位置，并通过整数索引来区分。列表文字表示为一系列用逗号分隔并用方括号括起来的对象。groovy 列表使用索引操作符 [] 索引。列表索引从 0 开始，指第一个元素。groovy 中的一个列表中的数据可以是任意类型。这 java 下集合列表有些不同，java 下的列表是同种类型的数据集合。
+`Groovy` 数组由 `Java`中 `java.util.Arrays` 工具提供的，所有`Java`中对数组的操作，在Groov y中同样适用
 
-#### 6.2.3. 文件
+![20210909152949](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909152949.png)
+
+#### 6.2.3. 列表
+
+列表是用于存储数据项集合的结构。在 `Groovy` 中，`List` 保存了一系列对象引用。List 中的对象引用占据序列中的位置，并通过整数索引来区分。列表文字表示为一系列用逗号分隔并用方括号括起来的对象。groovy 列表使用索引操作符 [] 索引。列表索引从 0 开始，指第一个元素。groovy 中的一个列表中的数据可以是任意类型。这` java` 下集合列表有些不同，java 下的列表是同种类型的数据集合。
+
+![常用方法](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909153004.png)
+
+~~~groovy
+package gvy02
+
+// 列表
+
+def list = [1,'2',23]
+println('【列表输出】'+list)
+println('【列表转字符】'+list.toString())
+println('【列表长度】'+list.last())
+
+~~~
+
+#### 6.2.4. 散列
+
+也称为关联数组、映射、表，是对象引用的无序集合，类似Java中 Map，格式如： ['Key1'：'Sam'，'Key2'：'Abram'] 
+
+![20210909153133](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909153133.png)
+
+~~~groovy
+package gvy02
+
+// 字典 Map
+
+def map = ['key1':'Grovy','key2':'Java']
+println('【Map输出】'+map)
+println('【Map转字符】'+map.toString())
+println('【Map元素个数为】'+map.size())
+
+for (String s:map.keySet()){
+    println('【遍历】'+'Key='+s+' Value = '+map.get(s))
+}
+
+~~~
+
+#### 6.2.5. 多线程
+
+`Java`开发过程中通过`J.U.C`工具定义多线程，`Groovy`参考`Python`脚本并且对`Java`的`java.lang.Thread`进行扩展，简化了多线程的定义。 `Groovy`线程利用闭包进行定义的居多，闭包的方式主要有 `Thread.start` 和 `Thread.startDaemon`。当然`Groovy`中也有定时任务，分别是`Timer` 和 `TimerTask`，两种方式。
+综述， `Groovy`的多线程开发， 仅仅是进行`Thread`结构的变化，其他结构均按照`Java`程序的方式定义。
+
+##### 6.2.5.1. 定义
+
+~~~groovy
+
+package gvy04
+
+/**
+ * 1、多线程的定义
+ */
+
+println('【主线程】'+Thread.currentThread().getName())
+
+// 1.1 start 模式
+Thread.start {
+    println('【子线程-start】'+Thread.currentThread().getName())
+    'Groovy Project :https://gitee.com/rothschil/pippin'.each {
+        print(it)
+    }
+    println('\n')
+}
+
+println('https://www.github.com/rothschil/pippin')
+
+// 1.2 startDaemon 模式
+Thread.startDaemon {
+    println('【子线程-startDaemon】'+Thread.currentThread().getName())
+    'Groovy Project :https://gitee.com/rothschil/'.each {
+        print(it)
+    }
+    println('\n')
+}
+
+~~~
+
+##### 6.2.5.2. 线程同步
+
+~~~groovy
+def ticket =10
+
+def sale ={->
+    synchronized (this){
+        sleep(100)
+        println('[Buy tickets]'+Thread.currentThread().getName()+ ' The remaining votes ' +(ticket--))
+    }
+}
+
+for(x in 1..10){
+    def st = Thread.start(sale)
+    st.name='TicketSeller -'+x
+}
+~~~
+
+##### 6.2.5.3. 定时任务
+
+~~~groovy
+package gvy04
+
+// 定时任务
+new Timer('[Timer]').runAfter(1000){
+    for (int i=0;i<10;i++){
+        println('【定时任务】'+Thread.currentThread().getName()+ ' Groovy Project :https://gitee.com/rothschil/pippin')
+    }
+}
+~~~
+
+##### 6.2.5.4. J.U.C操作
+
+~~~groovy
+
+package gvy04
+
+import java.util.concurrent.CountDownLatch
+
+// JUC 定义两个线程，让线程1 必须要等待线程2 执行完毕后 才能执行
+CountDownLatch countDownLatch = new CountDownLatch(1)
+
+def firstThread = Thread.start {
+    countDownLatch.await()
+    println('[The First Thread] '+ Thread.currentThread().getName())
+}
+
+def secondThread = Thread.start {
+    sleep(1000)
+    println('[The Second Thread] '+ Thread.currentThread().getName())
+    countDownLatch.countDown()
+}
+// 第一个线程先启动
+firstThread
+secondThread
+
+~~~
+
+##### 6.2.5.4. 线程池
+
+~~~groovy
+
+~~~
+
+
+#### 6.2.6. 文件
 
 ## 7. Gradle详解
 
