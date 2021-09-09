@@ -1,4 +1,4 @@
-package gvy04
+package gvy05
 
 // 线程同步
 def ticket =10

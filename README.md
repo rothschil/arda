@@ -389,17 +389,17 @@ for (String s:map.keySet()){
 
 ~~~groovy
 
-package gvy04
+package gvy05
 
 /**
  * 1、多线程的定义
  */
 
-println('【主线程】'+Thread.currentThread().getName())
+println('【主线程】' + Thread.currentThread().getName())
 
 // 1.1 start 模式
 Thread.start {
-    println('【子线程-start】'+Thread.currentThread().getName())
+    println('【子线程-start】' + Thread.currentThread().getName())
     'Groovy Project :https://gitee.com/rothschil/pippin'.each {
         print(it)
     }
@@ -410,7 +410,7 @@ println('https://www.github.com/rothschil/pippin')
 
 // 1.2 startDaemon 模式
 Thread.startDaemon {
-    println('【子线程-startDaemon】'+Thread.currentThread().getName())
+    println('【子线程-startDaemon】' + Thread.currentThread().getName())
     'Groovy Project :https://gitee.com/rothschil/'.each {
         print(it)
     }
@@ -440,12 +440,12 @@ for(x in 1..10){
 ##### 6.2.5.3. 定时任务
 
 ~~~groovy
-package gvy04
+package gvy05
 
 // 定时任务
-new Timer('[Timer]').runAfter(1000){
-    for (int i=0;i<10;i++){
-        println('【定时任务】'+Thread.currentThread().getName()+ ' Groovy Project :https://gitee.com/rothschil/pippin')
+new Timer('[Timer]').runAfter(1000) {
+    for (int i = 0; i < 10; i++) {
+        println('【定时任务】' + Thread.currentThread().getName() + ' Groovy Project :https://gitee.com/rothschil/pippin')
     }
 }
 ~~~
@@ -454,7 +454,7 @@ new Timer('[Timer]').runAfter(1000){
 
 ~~~groovy
 
-package gvy04
+package gvy05
 
 import java.util.concurrent.CountDownLatch
 
@@ -463,12 +463,12 @@ CountDownLatch countDownLatch = new CountDownLatch(1)
 
 def firstThread = Thread.start {
     countDownLatch.await()
-    println('[The First Thread] '+ Thread.currentThread().getName())
+    println('[The First Thread] ' + Thread.currentThread().getName())
 }
 
 def secondThread = Thread.start {
     sleep(1000)
-    println('[The Second Thread] '+ Thread.currentThread().getName())
+    println('[The Second Thread] ' + Thread.currentThread().getName())
     countDownLatch.countDown()
 }
 // 第一个线程先启动
@@ -477,30 +477,352 @@ secondThread
 
 ~~~
 
-##### 6.2.5.4. 线程池
+##### 6.2.5.5. 线程池
 
 ~~~groovy
+package gvy05
+
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
+ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+
+for (x in 1..20) {
+    es.submit(() -> {
+        println('[ThreadPool]' + Thread.currentThread().getName())
+    })
+}
+~~~
+
+#### 6.2.6. 更改类型
+
+使用 def关键字定义的所有变量类型都是可以动态更改，这和Python类似，使用起来比较灵活。
+
+~~~groovy
+package gvy01
+
+def msg = 'Groovy'
+println("【1】 msg 对应的类型是 "+ msg.class)
+
+msg = 3
+println("【2】 msg 对应的类型是 "+ msg.class)
+
+msg = 1.3
+println("【3】 msg 对应的类型是 "+ msg.class)
 
 ~~~
 
+![20210909155259](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909155259.png)
 
-#### 6.2.6. 文件
+#### 6.2.7. 数据溢出
+
+~~~groovy
+package gvy01
+
+
+def ix1 = Integer.MAX_VALUE+1
+
+println("【1】 ix1 对应的类型是 "+ ix1.class +" 变量内容："+ix1)
+
+def ix2 =  21474836499
+
+println("【2】 ix2 对应的类型是 "+ ix2.class +" 变量内容："+ix2)
+
+def ix3 =  2342546543634532424324233
+
+println("【3】 ix3 对应的类型是 "+ ix3.class +" 变量内容："+ix3)
+~~~
+
+![20210909155415](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909155415.png)
+
+#### 6.2.8. 异常
+
+和Java一样的异常处理方式
+
+- 检测异常：在编译时检查异常
+- 未经检查的异常：未检查的异常在编译期不检查，而是在运行时检查，如ArrayIndexOutOfBoundsException
+- 错误：程序永远不能恢复的错误，将导致程序崩溃，如OutOfMemoryError，VirtualMachineError，AssertionError
+
+![20210909155510](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909155510.png)
 
 ## 7. Gradle详解
 
-### 7.1. 任务创建、属性、继承
+通过上面对Groovy语法的介绍，这一章节，通过以Groovy 来编写Gradle任务。
 
-### 7.2. 任务依赖
+### 7.1. 任务创建
 
-### 7.3. 文件处理
+Gradle 中任务创建有四种方式，日常使用中比较多的是采用闭包的方式。
 
-### 7.4. 日志处理
+~~~gradle
+// 1、原型创建
+def task1 = task(task1)
+task1.doLast {
+    println '【1、原型创建】最后执行'
+}
 
-### 7.5. 项目打包
+// 2、任务属性创建
+def task2 = task([description: ' Is My Task2', group: 'xyz.wongs'],task2)
+task2.doLast {
+    println '【2、任务属性创建】最后执行'
+}
 
-jar、source.jar、doc.jar
+// 3、闭包机制
+task task3 {
+    description(' Is My Task3')
+    group('xyz.wongs')
+    doLast {
+        println '【3、闭包机制】最后执行'
+    }
+}
 
-### 7.6. 常用命令
+// 4、任务容器 TaskContainer
+tasks.create('task4') {
+    description(' Is My Task4')
+    group('xyz.wongs')
+
+    doLast {
+        println '【4、任务容器 TaskContainer】最后执行'
+    }
+}
+~~~
+
+### 7.2. 属性
+
+属性是Task在定义中说明的，在Task类中，我们可以看到提供这些属性，都可以通过外部访问。
+
+![20210909160048](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909160048.png)
+
+![20210909155934](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909155934.png)
+
+~~~gradle
+task taskPro {
+    description('Properties Demo')
+    group('xyz.wongs.gradle')
+    doLast {
+        println '【1、Propertie】属性设置'
+    }
+}
+~~~
+
+
+### 7.3. 继承
+
+整个Gradle中的任务都可以被继承，只需要定义一个父类的任务，在其中编写自己的业务，同时再继承 DefaultTask 即可。
+
+~~~gradle
+// 二、继承
+// 定义Java程序类
+class CustomerTask extends DefaultTask {
+
+    // TaskAction 任务执行注解
+    @TaskAction
+    def doSelf() {
+        // 实现的主体
+        println '【3、Extends-doSelf】 Operation Body'
+    }
+
+    @TaskAction
+    def doLast() {
+        println '【3、Extends-doLast】 doLast Operation'
+    }
+}
+
+task taskExtends(type: CustomerTask) {
+    description('Extends Demo')
+    doFirst {
+        println '【3、Extends】继承'
+    }
+
+    doLast {
+        println '【3、Extends】继承'
+    }
+}
+~~~
+
+![20210909161301](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161301.png)
+
+### 7.4. 任务依赖
+
+任务之间的依赖关系，为了方便控制任务执行过程中的优先级，如同我们Maven中，在运行jar任务之前，complie任务一定要执行过，也就是jar依赖于compile，在Gradle中，通过DependsOn控制依赖关系，DependsOn 是Task类的一个方法，可以接受多个依赖的任务作为参数
+
+![20210909161417](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161417.png)
+
+~~~gradle
+
+// 任务依赖
+
+task taskDependsOnC() {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnC】 doFirst'
+    }
+}
+
+task taskDependsOnD() {
+    // 任务禁用
+    enabled = true
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnD】 doFirst'
+    }
+}
+
+task taskDependsOnB(dependsOn: [taskDependsOnD, taskDependsOnC]) {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnB】 doFirst'
+    }
+}
+
+task taskDependsOnA(dependsOn: [taskDependsOnB]) {
+    group("xyz.wongs.gradle")
+    doFirst {
+        println '【5、DependsOnA】 doFirst'
+    }
+}
+~~~
+
+### 7.5. 文件处理
+
+编写多任务处理过程中需要用到对各类资源文件的控制，涉及到Gradle对文件操作，常用的对文件操作主要有：
+- 本地文件：指定文件的相对路径或绝对路径来对文件的操作
+- 文件集合：对一组文件的列表进行操作，但文件集合中的文件对象是延迟，任务调用才会创建
+- 文件树：有层级结构的文件集合，一个文件树它可以代表一个目录结构或一 ZIP 压缩包中的内容结构。文件树是从文件集合继承过来的，所以文件树具有文件集合所有的功能。
+- 文件拷贝：可以使用Copy任务来拷贝文件，通过它可以过虑指定拷贝内容，还能对文件进行重命名操作等。Copy任务必须指定一组需要拷贝的文件和拷贝到的目录
+- 归档文件：通常一个项目会有很多的 Jar 包，将项目打包成一个 WAR、ZIP、TAR 包进行发布，可以使用Zip，Tar，Jar，War和Ear任务来实现
+
+#### 7.5.1. 本地文件
+
+~~~gradle
+// 1、本地文件
+def Task taskLocalFile = task(taskLocalFile) {
+    doFirst {
+        // 使用相对路径
+        File configFile = file('src/main/resources/config.xml')
+        configFile.createNewFile();
+
+        def _path = 'D:/Code/98_Github/Gradle/grad/src/main/resources/config.xml'
+        // 使用绝对路径
+        configFile = file(_path)
+        println('【1、本地文件  使用绝对路径】' + configFile.absolutePath)
+
+        // 使用一个文件对象
+        configFile = file(new File(_path))
+        println('【1、本地文件  使用文件对象】' + configFile.exists())
+    }
+}
+~~~
+
+#### 7.5.2. 文件集合
+
+~~~gradle
+// 2、文件集合
+def Task taskCollectionFile = task(taskCollectionFile) {
+    doFirst {
+        File _fileList = file('gvoovy-demo/src/gvy01')
+        def FileCollection collection = files(_fileList.listFiles())    // 获取文件列表
+        collection.each { println(it) }   // 遍历文件列表
+        Set _set1 = collection.files        // 文件集合转为 Set
+        Set _set2 = collection as Set
+        List _list = collection as List     // 文件集合转为 List
+        String _path = collection.asPath    // 文件集合转为 String
+    }
+}
+~~~
+
+#### 7.5.3. 文件树
+
+~~~gradle
+// 3、文件树
+def Task taskFileTree = task(taskFileTree) {
+    doFirst {
+        FileTree _fileTree = fileTree('gvoovy-demo/src/gvy01')  // 1、指定目录创建文件树对象
+        _fileTree.include '**/*.groovy'     // 添加包含指定文件
+        _fileTree.exclude '**/del*'         // 添加排除指定文件
+        // 2、使用路径创建文件树对象，同时指定包含的文件
+        _fileTree = fileTree('gvy/src').include('**/*.groovy')
+
+        _fileTree = fileTree('gvy/src') {   // 3、通过闭包创建文件树
+            include '**/*.groovy'
+        }
+
+        _fileTree = fileTree(dir: 'gvoovy-demo/src/gvy01', include: '**/*.groovy')  // 通过map创建文件树
+        _fileTree = fileTree(dir: 'gvoovy-demo/src/gvy01', includes: ['**/*.groovy', '**/*.xml'])
+        _fileTree = fileTree(dir: 'gvoovy-demo/src/gvy01', include: '**/*.groovy', exclude: '**/*del*/**')
+
+        _fileTree.each { File file ->        // 遍历文件树的所有文件
+            println(file)
+        }
+    }
+}
+~~~
+
+#### 7.5.4. 文件拷贝
+
+~~~gradle
+// 4、文件拷贝
+task taskFileCopy(type: Copy) {
+    from 'src/main/resources/config.log'
+    // 从Zip压缩文件中拷贝内容
+    from zipTree('src/main/resources/00.zip')
+    into 'src/main/java/'
+    // 添加过虑条件来指定包含或排除的文件
+    include '**/*.png'
+}
+~~~
+
+### 7.6. 依赖库范围
+
+![20210909161903](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161903.png)
+
+### 7.7. 日志处理
+
+项目开发过程中，所有重要数据内容都需要通过日志的形式输出，Gradle内部提供各种日志组件。
+
+![20210909162056](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909162056.png)
+
+### 7.8. 项目打包
+
+一个完整的项目打包过程中，会包含三个 `*.jar` 文件：主程序 `projectName-version.jar`、源代码 `projectName-version-sources.jar`、文档 `projectName-version-javadoc.jar`，所以要想在 `Gradle`中生成上述文档，需要在项目定义相关的任务处理来完成这三个文件的输出。
+
+~~~gradle
+apply plugin: 'java'
+group 'xyz.wongs.gradle'
+version '1.0-SNAPSHOT'
+def jdkVersion = 1.8
+sourceCompatibility = jdkVersion
+targetCompatibility = jdkVersion
+repositories { mavenCentral() }
+dependencies { compile('org.apache.poi:poi:5.0.0') }
+test { useJUnitPlatform() }
+//程序主类名称
+def mainClass = 'xyz/wongs/gradle/GradleStart.java'
+jar {
+// Jar文件名称
+    archiveBaseName = 'grad'
+    manifestContentCharset = 'UTF-8'
+    //文件编码
+    metadataCharset('UTF-8')
+    //内容编码
+    manifest {
+        //程序主版本号
+        attributes 'Manifest-Version': getArchiveVersion().getOrNull(),
+                'Main-Class': "$mainClass",
+                'Implementation-Titile': 'grad-Tiltle',
+                'Implementation-Version': archiveVersion     //版本编号
+        // 所有第三方包放置到 lib文件夹下
+    }
+    into('lib') {
+        //运行时组件
+        from configurations.runtime
+    }
+}
+
+~~~
+
+### 7.9. 常用命令
+
+![20210909162804](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909162804.png)
 
 ## 8. 进阶内容
 
@@ -539,3 +861,11 @@ def env=System.getProperty('env')?:'dev'
 | Sonar插件 | 分析检查代码质量 |
 
 ### 8.3. 项目发布
+
+项目发布我们使用插件 `maven-publish`，将构建内容发布到`Apache Maven`存储库的功能。可以被 `Maven`、`Gradle` 和其他了解 `Maven` 存储库格式的工具使用
+
+~~~gradle
+apply plugin: 'maven-publish'
+~~~
+
+![20210909163335](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909163335.png)
