@@ -131,7 +131,6 @@
 
 `Gradle` 附带自己的 `Groovy` 库，因此不需要安装 `Groovy`，同时 `Gradle` 会忽略任何现有的 `Groovy` 安装。
 
-
 #### 5.2.1. gradle.properties
 
 `Gradle` 配置项，可以控制用于执行构建的 Java 进程，如果在多个位置配置了一个选项，则以在这些位置中的任何一个中找到的第一个配置项为准：
@@ -153,7 +152,7 @@
     配置后，Gradle 将分叉到 org.gradle.workers.max JVM 以并行执行项目。要了解有关并行任务执行的更多信息，请参阅 Gradle 构建性能部分
 
     org.gradle.daemon=(true,false)
-    当设置为 true 时，Gradle 守护程序用于运行构建。默认为真
+    当设置为 true 时，Gradle 守护程序用于运行构建。3.0开始默认开启。
 
 当然 `Gradle` 配置项 还有其他属性可供选择，具体，比如日志、优先权、警告模式等。 此处给除一个常见的配置项，具体如下：
 
@@ -162,8 +161,6 @@ org.gradle.daemon=true
 org.gradle.parallel=true
 org.gradle.caching=true
 ~~~
-
-获胜主要为了开启多线程模式，`Gradle` 运行时候效率更快一点
 
 #### 5.2.2. init.gradle
 
