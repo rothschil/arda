@@ -226,7 +226,7 @@ for (x in 1..20) {
 
 ## 4. 更改类型
 
-使用 def关键字定义的所有变量类型都是可以动态更改，这和Python类似，使用起来比较灵活。
+使用 `def`关键字定义的所有变量类型都是可以动态更改，这和 `Python`类似，使用起来比较灵活。
 
 ~~~groovy
 package gvy01
@@ -267,10 +267,10 @@ println("【3】 ix3 对应的类型是 "+ ix3.class +" 变量内容："+ix3)
 
 ## 6. 异常
 
-和Java一样的异常处理方式
+和 `Java`一样的异常处理方式
 
 - 检测异常：在编译时检查异常
-- 未经检查的异常：未检查的异常在编译期不检查，而是在运行时检查，如ArrayIndexOutOfBoundsException
-- 错误：程序永远不能恢复的错误，将导致程序崩溃，如OutOfMemoryError，VirtualMachineError，AssertionError
+- 未经检查的异常：未检查的异常在编译期不检查，而是在运行时检查，如 `ArrayIndexOutOfBoundsException`
+- 错误：程序永远不能恢复的错误，将导致程序崩溃，如 `OutOfMemoryError`，`VirtualMachineError`，`AssertionError`
 
 ![20210909155510](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909155510.png)

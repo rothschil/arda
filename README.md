@@ -4,11 +4,20 @@
 
 `Pippin`, was a `Hobbit` of the Shire, and one of `Frodo Baggins'` youngest, but closest friends. He was a member of the Fellowship of the Ring and later became the thirty-second Thain of the Shire。 
 
-`Gradle` 是一个基于`Apache Ant`和 `Apache Maven`概念的项目自动化构建工具，它使用`Groovy`语言来声明项目设置，抛弃了`XML`的各类繁琐配置。面向Java应用为主，当前支持的语言有`Java`、`Groovy`、`Kotlin`、`Scala`、`C++`、`Swift`、`JavaScript`，计划未来支持更多的语言。
+`Gradle` 是一种开源构建自动化工具，其设计足够灵活，几乎可以构建任何类型的软件，是一个基于`Apache Ant`和 `Apache Maven`概念的项目自动化构建工具，它使用 `Groovy` 语言来声明项目设置，抛弃了 `XML` 的各类繁琐配置。以面向 `Java` 应用为主，当前支持的语言有除 `Java` 外，还有 `Groovy`、`Kotlin`、`Scala`、`C++`、`Swift`、`JavaScript`，计划未来支持更多的语言。
+
+`Gradle` 具有以下特性：
+
+- 高性能：`Gradle` 通过仅运行需要运行的任务来避免不必要的工作，因为它们的输入或输出已更改，还可以使用构建缓存来重用先前运行或来自不同机器（具有共享构建缓存）的任务输出。
+- JVM基础：`Gradle` 在 `JVM` 上运行，必须安装 `Java Development Kit (JDK)` 才能使用它，这对于熟悉 `Java` 平台的用户来说是一个好处，可以在构建逻辑中使用标准的 `Java API`，例如自定义任务类型和插件，它还可以轻松地在不同平台上运行 `Gradle` 。
+- 约定： `Gradle` 借鉴 `Maven` ，通过实现约定使常见类型的项目易于构建，应用适当的插件可以轻松地为许多项目创建精简的构建脚本，但是这些约定并不会限制，你可以覆盖它们，添加自己的任务，进行其他自定义行为。
+- 可扩展性：可以扩展 `Gradle` 以提供您自己的任务类型甚至构建模型。
+- IDE支持：支持主流 IDE 构建并与之交互，如 `Android Studio`、`IntelliJ IDEA`、 `Eclipse`、 `NetBeans`，`Gradle` 还支持生成将项目加载到 `Visual Studio` 所需的解决方案。
+- 可分析：可在构建扫描过程中提供有关构建运行的大量信息，基于这些信息来识别构建性能问题，还可以与他人共享构建扫描，这在解决构建问题时特别有用。
 
  本工程主要是针对 `Gradle`的学习入门类项目，也是借助于托尔金指环王的人物命名的工程，在学习本工程之前，对学习者有如下要求：
 
-- 面向`Java`语言的项目开发者，至少一年半以上开发类的经验
+- 面向`Java`语言的项目开发者，至少一年半以上开发类的经验，如果会 `Python` 更好， `Groovy`语言很多都是参考 `Python`。
 - 掌握 `Maven`在项目开发中的基本运用，具体如下：
     - 熟练掌握 `Nexus` 私服，创建和维护私服
     - 掌握 `Maven`中环境构建、依赖管理、编译、打包、部署，并且可以基本运用
@@ -18,9 +27,11 @@
 
 如果不满足上述要求，建议先去补充 `Maven`有关的知识，因为 `Gradle`和 `Maven`还是有很多类似的地方。
 
-通过本工程的学习，会掌握 `Gradle`常见用法以及利用 `Groovy`编写任务来完成自身项目开发需要，当然本工程集成`SpringBoot`。也可以用来当作 `Gradle`项目改造的模板来使用。
+通过本工程的学习，会掌握 `Gradle`常见用法以及利用 `Groovy`编写任务来完成自身项目开发需要，当然本工程最后一段项目案例以集成 `SpringBoot` 完成项目模块的构建，也可以将此用来当作现实中用来改造既有项目为 `Gradle`项目的模板来使用。
 
 ## 2. 友情关联
+
+本工程目前已经开源，源码目录分别在 `Gitee` 和 `Github` 中都有链接，希望对大家有帮助，最后别忘给 `Star`。
 
 [Gitee链接：https://gitee.com/rothschil/pippin](https://gitee.com/rothschil/pippin)
 
@@ -60,7 +71,7 @@
 |   │  dependencies-test.gradle ----------测试环境配置
 │  .gitignore           ------------------配置git忽略索要文件
 │  build.gradle         ------------------根目录的构建核心文件
-│  gradle.properties    ------------------根目录的属性文件，这是固定命名
+│  gradle.properties    ------------------根目录的属性文件，这是默认命名
 │  gradlew              
 │  gradlew.bat          ------------------Gradle Wrapper
 │  LICENSE              ------------------开源授权协议
@@ -71,10 +82,10 @@
 
 ## 4. Maven与Gradle比较
 
-- 灵活性：二者都提供约定优于配置。但 `Maven` 显得非常僵化，没法定制，一切都是 Maven给定的，不适用于许多自动化问题。另一方面，`Gradle` 是在考虑到授权和负责任的用户的情况下构建的。
+- 灵活性：二者都提供约定优于配置。但 `Maven` 显得非常僵化，没法定制，一切都是 `Maven`给定的，不适用于许多自动化问题。另一方面，`Gradle` 是在考虑到授权和负责任的用户的情况下构建的。
 - 性能： `Gradle` 特有的增量机制，所以相对来说缩短构建所需的时间
-- 用户体验：`Gradle` 提供了一个基于 Web 的交互式 UI 用于调试和优化构建：构建扫描。这些也可以在本地托管，以允许组织收集构建历史并进行趋势分析、比较构建以进行调试或优化构建时间。
-- 依赖管理：`Gradle` 允许生产者声明`api`和`implementation`依赖项，以防止不需要的库泄漏到使用者的类路径中。`Maven` 允许发布者通过可选的依赖项提供元数据。
+- 用户体验：`Gradle` 提供了一个基于 `Web` 的交互式 `UI` 用于调试和优化构建：构建扫描。这些也可以在本地托管，以允许组织收集构建历史并进行趋势分析、比较构建以进行调试或优化构建时间。
+- 依赖管理：`Gradle` 允许生产者声明 `api` 和 `implementation` 依赖项，以防止不需要的库泄漏到使用者的类路径中。`Maven` 允许发布者通过可选的依赖项提供元数据。
 
 具体在性能上，`Gradle` 具备三个明显特征：
 
@@ -92,26 +103,67 @@
 
 本工程运行环境对应的版本 `JDK`版本在 `1.8`、`Maven`版本 `3.6`、`Nexus 3.34+ ` 三者的安装不在本工程内容中，自行百度脑补。
 
-### 5.2. Gradle环境配置
+当前 `Gradle` 需要 8 到 16 之间的 `Java` 版本。尚不支持 `Java 17` 及更高版本，下图为 `Gradle` 兼容性表格。
+
+| Java version | 对应 Gradle 版本 |
+| --- | --- |
+|	8	|	2	|
+|	9	|	4.3	|
+|	10	|	4.7	|
+|	11	|	5	|
+|	12	|	5.4	|
+|	13	|	6	|
+|	14	|	6.3	|
+|	15	|	6.7	|
+|	16	|	7	|
+
+
+### 5.2. Gradle环境配置（Windows）
 
 ![官网](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173500.png)
 
-- Windows下配置Gradle环境配置，需要先从  [官网](https://gradle.org/releases/)  下载
+- `Windows`下配置 `Gradle`环境配置，需要先从  [官网](https://gradle.org/releases/)  下载最新的官方发行版
 - 将下载的压缩文件解压到一个路径下，例如：`D:\ProgramFiles\Gradle\gradle-7.2`
 - 配置环境变量 `GRADLE_HOME` ，值为 `D:\ProgramFiles\Gradle\gradle-7.2`
 - 将  `GRADLE_HOME` 添加到 path
 - 再添加环境变量 `GRADLE_USER_HOME` ，这个是用户空间，指向磁盘中一个文件夹即可，例如：`E:\Repertory\RepositoryGradle\.gradle` 这个很重要
 - `GRADLE_USER_HOME` 目录下我们新建两个文件，`gradle.properties`、`init.gradle`
 
+`Gradle` 附带自己的 `Groovy` 库，因此不需要安装 `Groovy`，同时 `Gradle` 会忽略任何现有的 `Groovy` 安装。
+
+
 #### 5.2.1. gradle.properties
 
-`Gradle` 配置项，主要为了开启多线程模式，`Gradle` 运行时候效率更快一点
+`Gradle` 配置项，可以控制用于执行构建的 Java 进程，如果在多个位置配置了一个选项，则以在这些位置中的任何一个中找到的第一个配置项为准：
+
+- 命令行，使用 -P / --project-prop 环境选项设置
+- `GRADLE_USER_HOME` 目录中的 `gradle.properties`
+- 项目根目录下的 `gradle.properties`
+- `Gradle` 安装目录中的 `gradle.properties`
+
+`Gradle` 配置项主要有以下属性可用于配置
+
+    org.gradle.caching=(true,false)
+    当设置为 true 时，Gradle 将在可能的情况下重用任何先前构建的任务输出，从而使构建速度更快。了解有关使用构建缓存的更多信息。
+
+    org.gradle.caching.debug=(true,false)
+    设置为 true 时，每个任务的单个输入属性哈希值和构建缓存键都会记录在控制台上。了解有关任务输出缓存的更多信息
+
+    org.gradle.parallel=(true,false)
+    配置后，Gradle 将分叉到 org.gradle.workers.max JVM 以并行执行项目。要了解有关并行任务执行的更多信息，请参阅 Gradle 构建性能部分
+
+    org.gradle.daemon=(true,false)
+    当设置为 true 时，Gradle 守护程序用于运行构建。默认为真
+
+当然 `Gradle` 配置项 还有其他属性可供选择，具体，比如日志、优先权、警告模式等。 此处给除一个常见的配置项，具体如下：
 
 ~~~properties
 org.gradle.daemon=true
 org.gradle.parallel=true
 org.gradle.caching=true
 ~~~
+
+获胜主要为了开启多线程模式，`Gradle` 运行时候效率更快一点
 
 #### 5.2.2. init.gradle
 
@@ -155,7 +207,7 @@ allprojects{
 
 ### 5.3. IDEA工具集成
 
-我使用的IDEA版本是 `2021.1.2`。
+演示所使用的IDEA版本是 `2021.1.2`。
 
 ![20210907170523](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907170523.png)
 
@@ -179,7 +231,7 @@ allprojects{
 - Location：所在的路径
 - GroupId、ArtifactId、Version
 
-这些都与Maven雷同。
+这些都与`Maven`雷同。
 
 ![New Project_3](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907172055.png)
 
@@ -289,17 +341,17 @@ gradlew build --scan
 
 [Groovy快速入门教程详细见](Doc/Groovy.md)
 
-`Apache` 的`Groovy`是`Java`平台上设计的面向对象编程语言。运行于`Java`虚拟机上的`Java`字节码，并与其他`Java`代码和库进行互操作。由于其运行在JVM上的特性，Groovy可以使用其他Java语言编写的库。`Groovy`的语法与`Java`非常相似，大多数`Java`代码也符合`Groovy`的语法规则。
+`Apache` 的`Groovy`是`Java`平台上设计的面向对象编程语言。运行于`Java`虚拟机上的`Java`字节码，并与其他`Java`代码和库进行互操作。由于其运行在`JVM`上的特性，`Groovy`可以使用其他`Java`语言编写的库。`Groovy`的语法与`Java`非常相似，大多数`Java`代码也符合`Groovy`的语法规则。
 
 ![20210908095332](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095332.png)
 
 ## 7. Gradle详解
 
-通过上面对Groovy语法的介绍，这一章节，通过以Groovy 来编写Gradle任务。
+通过上面对`Groovy`语法的介绍，这一章节，通过以`Groovy` 来编写`Gradle`任务。
 
 ### 7.1. 任务创建
 
-Gradle 中任务创建有四种方式，日常使用中比较多的是采用闭包的方式。
+`Gradle` 中任务创建有四种方式，日常使用中比较多的是采用闭包的方式。
 
 ~~~gradle
 // 1、原型创建
@@ -336,7 +388,7 @@ tasks.create('task4') {
 
 ### 7.2. 属性
 
-属性是Task在定义中说明的，在Task类中，我们可以看到提供这些属性，都可以通过外部访问。
+属性是`Task`在定义中说明的，在`Task`类中，我们可以看到提供这些属性，都可以通过外部访问。
 
 ![20210909160048](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909160048.png)
 
@@ -355,7 +407,7 @@ task taskPro {
 
 ### 7.3. 继承
 
-整个Gradle中的任务都可以被继承，只需要定义一个父类的任务，在其中编写自己的业务，同时再继承 DefaultTask 即可。
+整个 `Gradle`中的任务都可以被继承，只需要定义一个父类的任务，在其中编写自己的业务，同时再继承  `DefaultTask` 即可。
 
 ~~~gradle
 // 二、继承
@@ -391,7 +443,7 @@ task taskExtends(type: CustomerTask) {
 
 ### 7.4. 任务依赖
 
-任务之间的依赖关系，为了方便控制任务执行过程中的优先级，如同我们Maven中，在运行jar任务之前，complie任务一定要执行过，也就是jar依赖于compile，在Gradle中，通过DependsOn控制依赖关系，DependsOn 是Task类的一个方法，可以接受多个依赖的任务作为参数
+任务之间的依赖关系，为了方便控制任务执行过程中的优先级，如同我们 `Maven`中，在运行 `jar`任务之前，`complie`任务一定要执行过，也就是 `jar`依赖于`compile`，在 `Gradle`中，通过 `DependsOn`控制依赖关系，`DependsOn` 是 `Task`类的一个方法，可以接受多个依赖的任务作为参数
 
 ![20210909161417](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161417.png)
 
@@ -432,12 +484,12 @@ task taskDependsOnA(dependsOn: [taskDependsOnB]) {
 
 ### 7.5. 文件处理
 
-编写多任务处理过程中需要用到对各类资源文件的控制，涉及到Gradle对文件操作，常用的对文件操作主要有：
+编写多任务处理过程中需要用到对各类资源文件的控制，涉及到 `Gradle`对文件操作，常用的对文件操作主要有：
 - 本地文件：指定文件的相对路径或绝对路径来对文件的操作
 - 文件集合：对一组文件的列表进行操作，但文件集合中的文件对象是延迟，任务调用才会创建
-- 文件树：有层级结构的文件集合，一个文件树它可以代表一个目录结构或一 ZIP 压缩包中的内容结构。文件树是从文件集合继承过来的，所以文件树具有文件集合所有的功能。
-- 文件拷贝：可以使用Copy任务来拷贝文件，通过它可以过虑指定拷贝内容，还能对文件进行重命名操作等。Copy任务必须指定一组需要拷贝的文件和拷贝到的目录
-- 归档文件：通常一个项目会有很多的 Jar 包，将项目打包成一个 WAR、ZIP、TAR 包进行发布，可以使用Zip，Tar，Jar，War和Ear任务来实现
+- 文件树：有层级结构的文件集合，一个文件树它可以代表一个目录结构或一 `ZIP` 压缩包中的内容结构。文件树是从文件集合继承过来的，所以文件树具有文件集合所有的功能。
+- 文件拷贝：可以使用 `Copy`任务来拷贝文件，通过它可以过虑指定拷贝内容，还能对文件进行重命名操作等。Copy任务必须指定一组需要拷贝的文件和拷贝到的目录
+- 归档文件：通常一个项目会有很多的 `Jar` 包，将项目打包成一个 `WAR`、`ZIP`、`TAR` 包进行发布，可以使用 `Zip`，`Tar`，`Jar`，`War`和Ear任务来实现
 
 #### 7.5.1. 本地文件
 
