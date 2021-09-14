@@ -219,6 +219,16 @@ tasks.create('task4') {
     }
 }
 
+// 5、任务容器 TaskContainer
+tasks.register('task5') {
+    description(' Is My Task5')
+    group('xyz.wongs')
+
+    doLast {
+        println '【4、任务容器 TaskContainer】register 最后执行'
+    }
+}
+
 // 一、属性：
 task taskPro {
     description('Properties Demo')
@@ -227,6 +237,46 @@ task taskPro {
         println '【1、Propertie】属性设置'
     }
 }
+
+
+task funExcu {
+    group('xyz.wongs.gradle')
+    doLast {
+        fileList('./groovy-demo/src/gvy01').each{
+            File file ->
+            ant.checksum(file: file, property: "cs_$file.name")
+            println "$file.name Checksum: ${ant.properties["cs_$file.name"]}"
+        }
+    }
+}
+
+File[] fileList(String path){
+    file(path).listFiles({ file -> file.isFile()} as FileFilter).sort()
+}
+
+
+// 一、属性(补充)：
+task taskAaddAction {
+    description('Adding behaviour Demo')
+    group('xyz.wongs.gradle')
+    doLast {
+        println '【1、Adding behaviour】属性设置'
+    }
+}
+
+tasks.named('taskAaddAction') {
+    doFirst {
+        println '【1、Adding behaviour】 doFirst 追加的动作'
+    }
+}
+
+tasks.named('taskAaddAction') {
+    doLast {
+        println '【1、Adding behaviour】 doLast 追加的动作'
+    }
+}
+
+
 
 // 二、控制
 task taskControl {
@@ -471,3 +521,26 @@ task taskFileCopy(type: Copy) {
 //task taskEach(){
 //    FileTree tar = zipTree('build/distributions/placeFile-1.0-SNAPSHOT.zip')
 //    ta
+
+apply plugin: WorkPlugin
+
+abstract class WorkPluginExtension {
+    abstract Property<String> getMessage()
+    WorkPluginExtension() {
+        message.convention('Hello from GreetingPlugin')
+    }
+}
+
+class WorkPlugin implements Plugin<Project>{
+    @Override
+    void apply(Project project) {
+        // 添加 属性扩展类
+        def extension = project.extensions.create('work',WorkPluginExtension)
+
+        project.task('sayWorld'){
+            doLast {
+                println extension.message.get()
+            }
+        }
+    }
+}

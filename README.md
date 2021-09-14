@@ -1,3 +1,45 @@
+<!-- TOC -->
+
+- [1. 概述](#1-概述)
+- [2. 友情关联](#2-友情关联)
+- [3. 目录结构](#3-目录结构)
+- [4. Maven与Gradle比较](#4-maven与gradle比较)
+- [5. 环境构建](#5-环境构建)
+- [6. Groovy](#6-groovy)
+- [7. Gradle基础](#7-gradle基础)
+  - [7.1. 任务创建](#71-任务创建)
+  - [7.2. 执行任务](#72-执行任务)
+    - [7.2.1. 追加任务动作](#721-追加任务动作)
+    - [7.2.2. 执行方法](#722-执行方法)
+  - [7.3. 属性](#73-属性)
+  - [7.4. 继承](#74-继承)
+  - [7.5. 任务依赖](#75-任务依赖)
+  - [7.6. 文件处理](#76-文件处理)
+    - [7.6.1. 本地文件](#761-本地文件)
+    - [7.6.2. 文件集合](#762-文件集合)
+    - [7.6.3. 文件树](#763-文件树)
+    - [7.6.4. 文件拷贝](#764-文件拷贝)
+  - [7.7. 依赖库范围](#77-依赖库范围)
+  - [7.8. 日志处理](#78-日志处理)
+  - [7.9. 项目打包](#79-项目打包)
+  - [7.10. 常用命令](#710-常用命令)
+- [8. Gradle进阶](#8-gradle进阶)
+  - [8.1. 生命周期](#81-生命周期)
+    - [8.1.1. 构建阶段](#811-构建阶段)
+    - [8.1.2. 配置文件](#812-配置文件)
+    - [8.1.3. 初始化](#813-初始化)
+  - [8.2. 多环境](#82-多环境)
+  - [8.3. 插件](#83-插件)
+    - [8.3.1. 二进制插件](#831-二进制插件)
+    - [8.3.2. 自定义插件](#832-自定义插件)
+    - [8.3.3. 脚本插件](#833-脚本插件)
+    - [8.3.4. 插件社区](#834-插件社区)
+  - [8.4. 项目发布](#84-项目发布)
+
+<!-- /TOC -->
+
+
+
 ![gradle](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/gradle.png)
 
 ## 1. 概述
@@ -41,6 +83,7 @@
 
 ~~~
 |---.gradle
+|---Doc                 ------------------文档
 |---gradle              ------------------Gradle配置文件
 │  └─wrapper
 │          gradle-wrapper.jar           --gradle-wrapper 主题功能
@@ -99,256 +142,23 @@
 
 ## 5. 环境构建
 
-### 5.1. JDK、Maven、Nexus版本要求
-
-本工程运行环境对应的版本 `JDK`版本在 `1.8`、`Maven`版本 `3.6`、`Nexus 3.34+ ` 三者的安装不在本工程内容中，自行百度脑补。
-
-当前 `Gradle` 需要 8 到 16 之间的 `Java` 版本。尚不支持 `Java 17` 及更高版本，下图为 `Gradle` 兼容性表格。
-
-| Java version | 对应 Gradle 版本 |
-| --- | --- |
-|	8	|	2	|
-|	9	|	4.3	|
-|	10	|	4.7	|
-|	11	|	5	|
-|	12	|	5.4	|
-|	13	|	6	|
-|	14	|	6.3	|
-|	15	|	6.7	|
-|	16	|	7	|
-
-
-### 5.2. Gradle环境配置（Windows）
-
-![官网](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173500.png)
-
-- `Windows`下配置 `Gradle`环境配置，需要先从  [官网](https://gradle.org/releases/)  下载最新的官方发行版
-- 将下载的压缩文件解压到一个路径下，例如：`D:\ProgramFiles\Gradle\gradle-7.2`
-- 配置环境变量 `GRADLE_HOME` ，值为 `D:\ProgramFiles\Gradle\gradle-7.2`
-- 将  `GRADLE_HOME` 添加到 path
-- 再添加环境变量 `GRADLE_USER_HOME` ，这个是用户空间，指向磁盘中一个文件夹即可，例如：`E:\Repertory\RepositoryGradle\.gradle` 这个很重要
-- `GRADLE_USER_HOME` 目录下我们新建两个文件，`gradle.properties`、`init.gradle`
-
-`Gradle` 附带自己的 `Groovy` 库，因此不需要安装 `Groovy`，同时 `Gradle` 会忽略任何现有的 `Groovy` 安装。
-
-#### 5.2.1. gradle.properties
-
-`Gradle` 配置项，可以控制用于执行构建的 Java 进程，如果在多个位置配置了一个选项，则以在这些位置中的任何一个中找到的第一个配置项为准：
-
-- 命令行，使用 -P / --project-prop 环境选项设置
-- `GRADLE_USER_HOME` 目录中的 `gradle.properties`
-- 项目根目录下的 `gradle.properties`
-- `Gradle` 安装目录中的 `gradle.properties`
-
-`Gradle` 配置项主要有以下属性可用于配置
-
-    org.gradle.caching=(true,false)
-    当设置为 true 时，Gradle 将在可能的情况下重用任何先前构建的任务输出，从而使构建速度更快。了解有关使用构建缓存的更多信息。
-
-    org.gradle.caching.debug=(true,false)
-    设置为 true 时，每个任务的单个输入属性哈希值和构建缓存键都会记录在控制台上。了解有关任务输出缓存的更多信息
-
-    org.gradle.parallel=(true,false)
-    配置后，Gradle 将分叉到 org.gradle.workers.max JVM 以并行执行项目。要了解有关并行任务执行的更多信息，请参阅 Gradle 构建性能部分
-
-    org.gradle.daemon=(true,false)
-    当设置为 true 时，Gradle 守护程序用于运行构建。3.0开始默认开启。
-
-当然 `Gradle` 配置项 还有其他属性可供选择，具体，比如日志、优先权、警告模式等。 此处给除一个常见的配置项，具体如下：
-
-~~~properties
-org.gradle.daemon=true
-org.gradle.parallel=true
-org.gradle.caching=true
-~~~
-
-#### 5.2.2. init.gradle
-
-`Gradle` 全局配置，主要定义定义仓库
-
-~~~gradle
-
-allprojects{
-   
-    repositories {
-   
-        def ALIYUN_REPOSITORY_URL = 'http://maven.aliyun.com/nexus/content/groups/public'
-        def ALIYUN_JCENTER_URL = 'http://maven.aliyun.com/nexus/content/repositories/jcenter'
-        all {
-            ArtifactRepository repo ->
-            if(repo instanceof MavenArtifactRepository){
-   
-                def url = repo.url.toString()
-                if (url.startsWith('https://repo1.maven.org/maven2')) {
-   
-                    project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_REPOSITORY_URL."
-                    remove repo
-                }
-                if (url.startsWith('https://jcenter.bintray.com/')) {
-   
-                    project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_JCENTER_URL."
-                    remove repo
-                }
-            }
-        }
-        maven {
-            allowInsecureProtocol = true
-            url ALIYUN_REPOSITORY_URL
-            url ALIYUN_JCENTER_URL
-        }
-    }
-}
-~~~
-
-![演示](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907173930.png)
-
-### 5.3. IDEA工具集成
-
-演示所使用的IDEA版本是 `2021.1.2`。
-
-![20210907170523](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907170523.png)
-
-#### 5.3.1. IDEA配置Gradle
-
-`IDEA` 集成 `Gradle`需要安装插件，否则无法使用，插件不论你在线安装还是离线安装都可以。
-
-![20210907165919](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165919.png)
-
-![20210907174102](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907174102.png)
-
- `IDEA `中的 `Gradle user home` 后的选项内容将是配置的 `GRADLE_USER_HOME` 环境变量。 这个点非常会让人忽视的。
-
- #### 5.1.3.2. 创建和认识Java工程项目
-
-![New Project_1](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165803.png)
-
-![New Project_2](https://abram.oss-cn-shanghai.aliyuncs.com/blog/sctel/20210907165727.png)
-
-- Name：项目名称
-- Location：所在的路径
-- GroupId、ArtifactId、Version
-
-这些都与`Maven`雷同。
-
-![New Project_3](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907172055.png)
-
-运行 `gradle build` 的输出结果
-
-~~~cmd
-17:21:31: Executing task 'build'...
-
-> Task :compileJava NO-SOURCE
-> Task :processResources NO-SOURCE
-> Task :classes UP-TO-DATE
-> Task :jar UP-TO-DATE
-> Task :assemble UP-TO-DATE
-> Task :compileTestJava NO-SOURCE
-> Task :processTestResources NO-SOURCE
-> Task :testClasses UP-TO-DATE
-> Task :test NO-SOURCE
-> Task :check UP-TO-DATE
-> Task :build UP-TO-DATE
-
-BUILD SUCCESSFUL in 131ms
-1 actionable task: 1 up-to-date
-17:21:31: Task execution finished 'build'.
-~~~
-
-![基本常用任务](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210907172205.png)
-
-上图中罗列的基本任务，可以先认识下，下来重点描述下这两个文件 `build.gradle`、`setting.gradle`，这是我们`Gradle`工程开发最核心的两个文件。
-
-- build.gradle
-
-这个文件非常重要， `Gradle` 的核心配置文件，相当于 `Maven` 中的 `POM` ，此后工程开发都围绕着这个文件来编写。
-
-~~~gradle
-plugins { //插件
-    id 'java'
-}
-
-group 'xyz.wongs.gradle'    // group 分组
-version '1.0.0-SNAPSHOT'    // 版本
-
-repositories {  // 仓库
-    mavenCentral()
-}
-
-dependencies {  // 依赖
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-}
-
-test {  // 测试
-    useJUnitPlatform()
-}
-~~~
-
-- setting.gradle
-
-这是针对模块的引入配置文件，可以在此管理每个模块激活状态，一般在添加新模块的过程中使用。
-
-~~~gradle
-rootProject.name = 'demo'
-~~~
-
-### 5.4. Gradle Wrapper
-
-在 `Maven`中，开发者和项目服务器都需要配置有相同的 `Maven`版本，才能保证应用正常编译执行，`Gradle`提供一个 `Gradle Wrapper`概念，可以项目中自带Gradle的处理环境，`Gradle Wrapper`简化 `Gradle`本身的安装、部署，避免 `Gradle`版本不通带来的各种问题。
-
-在任意目录中 执行 `gradle wrapper`
-
-![20210908092359](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908092359.png)
-
-切换版本
-
-| 操作 | 描述 |
-|--|--|
-| 切换 6.8 版本 | gradle wrapper --gradle-version 6.8 |
-| 切换 6.5 版本 | gradle wrapper --gradle-version 6.5 |
-
-![20210908093052](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093052.png)
-
-执行上述命令， `gradle-wrapper.properties` 中 `distributionUrl` 后的 URL 变为 `https\://services.gradle.org/distributions/gradle-6.8-bin.zip` ，版本切换成功。
-
-![20210908093313](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093313.png)
-
-### 5.5. 代码分析器
-
-所有开发人员编写的代码，在程序上线之前都一定要进行性能的检测，而对于 `Gradle` 项目来讲，也需要清楚的知道，项目代码构建的情况，包括构建环境、依赖库以及程序性能上存在的问题，这样方便与人沟通。为了解决这样的构建问题，所以在 `Gradle` 中就提供了一个 **Build Scan** 代码扫描工具， 这个工具会自动的将本地构建的过程发送到指定服务器端，并且由服务器端上生成一个完整的报告。
-
-这个分析器是 `gradle wrapper` 提供的
-
-~~~cmd
-gradlew build --scan
-~~~
-
-![20210908093948](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908093948.png)
-
-输入邮箱，在邮箱中确认
-
-![首页](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094121.png)
-
-![邮箱确认](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094306.png)
-
-![报告内容](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908094417.png)
-
+篇幅有限，请移步另一个文件 [环境构建快速入门教程](Doc/Build_Env.md)
 
 ## 6. Groovy
 
-[Groovy快速入门教程详细见](Doc/Groovy.md)
+篇幅有限，请移步另一个文件 [Groovy快速入门教程](Doc/Groovy.md)
 
 `Apache` 的`Groovy`是`Java`平台上设计的面向对象编程语言。运行于`Java`虚拟机上的`Java`字节码，并与其他`Java`代码和库进行互操作。由于其运行在`JVM`上的特性，`Groovy`可以使用其他`Java`语言编写的库。`Groovy`的语法与`Java`非常相似，大多数`Java`代码也符合`Groovy`的语法规则。
 
 ![20210908095332](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210908095332.png)
 
-## 7. Gradle详解
+## 7. Gradle基础
 
 通过上面对`Groovy`语法的介绍，这一章节，通过以`Groovy` 来编写`Gradle`任务。
 
 ### 7.1. 任务创建
 
-`Gradle` 中任务创建有四种方式，日常使用中比较多的是采用闭包的方式。
+`Gradle` 中任务创建有五种方式，日常使用中比较多的是采用闭包的方式。
 
 ~~~gradle
 // 1、原型创建
@@ -381,9 +191,59 @@ tasks.create('task4') {
         println '【4、任务容器 TaskContainer】最后执行'
     }
 }
+
+// 5、任务容器 TaskContainer
+tasks.register('task5') {
+    description(' Is My Task5')
+    group('xyz.wongs')
+
+    doLast {
+        println '【4、任务容器 TaskContainer】register 最后执行'
+    }
+}
 ~~~
 
-### 7.2. 属性
+### 7.2. 执行任务
+
+#### 7.2.1. 追加任务动作
+
+不论在开头或结尾添加一个操作，任务执行时，按顺序执行动作列表中的动作。
+
+~~~gradle
+task taskAaddAction {
+    description('Adding behaviour Demo')
+    group('xyz.wongs.gradle')
+    doLast {
+        println '【1、Adding behaviour】属性设置'
+    }
+}
+
+tasks.named('taskAaddAction') {
+    doFirst {
+        println '【1、Adding behaviour】 doFirst 追加的动作'
+    }
+}
+
+tasks.named('taskAaddAction') {
+    doLast {
+        println '【1、Adding behaviour】 doLast 追加的动作'
+    }
+}
+~~~
+
+![20210914094554](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210914094554.png)
+
+#### 7.2.2. 执行方法
+
+task funExcu {
+
+    group('xyz.wongs.gradle')
+    doLast {
+        println '【1、Adding behaviour】属性设置'
+    }
+}
+
+### 7.3. 属性
 
 属性是`Task`在定义中说明的，在`Task`类中，我们可以看到提供这些属性，都可以通过外部访问。
 
@@ -402,7 +262,7 @@ task taskPro {
 ~~~
 
 
-### 7.3. 继承
+### 7.4. 继承
 
 整个 `Gradle`中的任务都可以被继承，只需要定义一个父类的任务，在其中编写自己的业务，同时再继承  `DefaultTask` 即可。
 
@@ -438,7 +298,7 @@ task taskExtends(type: CustomerTask) {
 
 ![20210909161301](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161301.png)
 
-### 7.4. 任务依赖
+### 7.5. 任务依赖
 
 任务之间的依赖关系，为了方便控制任务执行过程中的优先级，如同我们 `Maven`中，在运行 `jar`任务之前，`complie`任务一定要执行过，也就是 `jar`依赖于`compile`，在 `Gradle`中，通过 `DependsOn`控制依赖关系，`DependsOn` 是 `Task`类的一个方法，可以接受多个依赖的任务作为参数
 
@@ -479,7 +339,7 @@ task taskDependsOnA(dependsOn: [taskDependsOnB]) {
 }
 ~~~
 
-### 7.5. 文件处理
+### 7.6. 文件处理
 
 编写多任务处理过程中需要用到对各类资源文件的控制，涉及到 `Gradle`对文件操作，常用的对文件操作主要有：
 - 本地文件：指定文件的相对路径或绝对路径来对文件的操作
@@ -488,7 +348,7 @@ task taskDependsOnA(dependsOn: [taskDependsOnB]) {
 - 文件拷贝：可以使用 `Copy`任务来拷贝文件，通过它可以过虑指定拷贝内容，还能对文件进行重命名操作等。Copy任务必须指定一组需要拷贝的文件和拷贝到的目录
 - 归档文件：通常一个项目会有很多的 `Jar` 包，将项目打包成一个 `WAR`、`ZIP`、`TAR` 包进行发布，可以使用 `Zip`，`Tar`，`Jar`，`War`和Ear任务来实现
 
-#### 7.5.1. 本地文件
+#### 7.6.1. 本地文件
 
 ~~~gradle
 // 1、本地文件
@@ -510,7 +370,7 @@ def Task taskLocalFile = task(taskLocalFile) {
 }
 ~~~
 
-#### 7.5.2. 文件集合
+#### 7.6.2. 文件集合
 
 ~~~gradle
 // 2、文件集合
@@ -527,7 +387,7 @@ def Task taskCollectionFile = task(taskCollectionFile) {
 }
 ~~~
 
-#### 7.5.3. 文件树
+#### 7.6.3. 文件树
 
 ~~~gradle
 // 3、文件树
@@ -554,7 +414,7 @@ def Task taskFileTree = task(taskFileTree) {
 }
 ~~~
 
-#### 7.5.4. 文件拷贝
+#### 7.6.4. 文件拷贝
 
 ~~~gradle
 // 4、文件拷贝
@@ -568,17 +428,17 @@ task taskFileCopy(type: Copy) {
 }
 ~~~
 
-### 7.6. 依赖库范围
+### 7.7. 依赖库范围
 
 ![20210909161903](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161903.png)
 
-### 7.7. 日志处理
+### 7.8. 日志处理
 
 项目开发过程中，所有重要数据内容都需要通过日志的形式输出，Gradle内部提供各种日志组件。
 
 ![20210909162056](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909162056.png)
 
-### 7.8. 项目打包
+### 7.9. 项目打包
 
 一个完整的项目打包过程中，会包含三个 `*.jar` 文件：主程序 `projectName-version.jar`、源代码 `projectName-version-sources.jar`、文档 `projectName-version-javadoc.jar`，所以要想在 `Gradle`中生成上述文档，需要在项目定义相关的任务处理来完成这三个文件的输出。
 
@@ -617,13 +477,29 @@ jar {
 
 ~~~
 
-### 7.9. 常用命令
+### 7.10. 常用命令
 
 ![20210909162804](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909162804.png)
 
-## 8. 进阶内容
+## 8. Gradle进阶
 
-### 8.1. 多环境
+### 8.1. 生命周期
+
+`Gradle` 保证这些任务按照它们的依赖顺序执行，并且每个任务只执行一次，最终任务会形成了一个有向无环图。
+
+#### 8.1.1. 构建阶段
+
+- 初始化阶段： `Gradle` 支持单项目和多项目构建。在初始化阶段， `Gradle` 确定哪些项目将参与构建，并为每个项目创建一个 `Project` 实例
+- 配置阶段：在此阶段配置项目对象。执行作为构建一部分的所有项目的构建脚本
+- 执行阶段： `Gradle` 确定在配置阶段创建和配置的要执行的任务的子集，再将子集传递给 `gradle` 命令和当前目录的任务名称参数决定。 `Gradle` 然后执行每个选定的任务
+  
+#### 8.1.2. 配置文件
+
+#### 8.1.3. 初始化
+
+
+
+### 8.2. 多环境
 
 目开发过程中，有开发环境、测试环境、生产环境，每个环境的配置也相同，与`Maven`项目类似，`Gradle`配置多环境用在环境属性文件和依赖配置 两个地方，实现可分为以下步骤：
 - 通过约定规则，编写多环境信息
@@ -639,7 +515,15 @@ def env=System.getProperty('env')?:'dev'
 -D{属性名称}={内容}
 ~~~
 
-### 8.2. 插件
+### 8.3. 插件
+
+`Gradle` 中有两种通用类型的插件，二进制插件和脚本插件。
+
+- 二进制插件可以通过实现插件接口以编程方式编写，也可以使用 `Gradle` 的一种 `DSL` 语言以声明方式编写。二进制插件可以驻留在构建脚本中、项目层次结构中或外部插件 `jar` 中。
+
+- 脚本插件是额外的构建脚本，可进一步配置构建并通常实施声明性方法来操作构建，它们通常在构建中使用，尽管它们可以被外部化并从远程位置访问。
+
+下表是 `Gradle` 发行版支持的插件。
 
 | 名称 | 描述 |
 |--|--|
@@ -657,7 +541,84 @@ def env=System.getProperty('env')?:'dev'
 | JaCoCo插件 | 分析单元测试覆盖率的工具 |
 | Sonar插件 | 分析检查代码质量 |
 
-### 8.3. 项目发布
+#### 8.3.1. 二进制插件
+
+`Gradle` 提供核心插件作为其发行版的一部分，它们会自动解析，即官方插件。非核心二进制插件需要先解决才能应用。
+
+#### 8.3.2. 自定义插件
+
+自定义 `Gradle` 插件，需要编写一个实现 `Plugin` 接口的类，当插件应用于项目时，`Gradle` 会创建插件类的实例并调用该实例的 `Plugin.apply()` 方法，项目对象作为参数传递，插件使用项目对象来配置项目。
+
+~~~gradle
+apply plugin: WorkPlugin
+class WorkPlugin implements Plugin<Project>{
+    @Override
+    void apply(Project project) {
+        project.task('sayWorld'){
+            doLast {
+                println 'Hello from the GreetingPlugin'
+            }
+        }
+    }
+}
+~~~
+
+此时执行 `gradle -q sayWorld`
+
+~~~cmd
+
+>gradle -q sayWorld
+
+11:07:42: Executing task 'sayWorld --quiet'...
+
+pippin-common: version = 1.0.0-SNAPSHOT
+pippin-service: version = 1.0.0-SNAPSHOT
+common-utils: version = 1.0.0-SNAPSHOT
+Hello from the GreetingPlugin
+11:07:46: Task execution finished 'sayWorld --quiet'.
+
+~~~
+
+插件使用过程中采用扩展对象来执行相应操作，`Gradle` 项目有一个关联的 `ExtensionContainer` 容器类，包含可应用于项目的插件的所有设置和属性，通过向  `ExtensionContainer` 容器添加扩展对象来为插件提供配置。
+
+
+~~~gradle
+
+apply plugin: WorkPlugin
+
+abstract class WorkPluginExtension {
+    abstract Property<String> getMessage()
+
+    WorkPluginExtension() {
+        message.convention('Hello from GreetingPlugin')
+    }
+}
+
+class WorkPlugin implements Plugin<Project>{
+    @Override
+    void apply(Project project) {
+        // 添加 属性扩展类
+        def extension = project.extensions.create('work',WorkPluginExtension)
+
+        project.task('sayWorld'){
+            doLast {
+                println extension.message.get()
+            }
+        }
+    }
+}
+
+~~~
+
+#### 8.3.3. 脚本插件
+
+脚本插件会自动解析，可以从本地文件系统或远程位置的脚本中应用，文件的位置是相对于项目目录，如果是远程脚本位置使用 `HTTP URL` 指定。
+
+#### 8.3.4. 插件社区
+
+Gradle 拥有一个充满活力的插件开发者社区，他们为各种功能贡献了插件 ，[官方地址](https://plugins.gradle.org/)
+
+### 8.4. 项目发布
 
 项目发布我们使用插件 `maven-publish`，将构建内容发布到`Apache Maven`存储库的功能。可以被 `Maven`、`Gradle` 和其他了解 `Maven` 存储库格式的工具使用
 
