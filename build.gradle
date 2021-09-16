@@ -1,7 +1,10 @@
 plugins {
     id 'java'
+    id 'java-library'
     id 'org.springframework.boot' version '2.5.0'
+
 }
+apply plugin: 'idea'
 apply plugin: 'io.spring.dependency-management'
 
 version project_version
@@ -12,8 +15,18 @@ repositories {
     mavenCentral()
 }
 
-jar.enabled = false
-bootJar.enabled = false
+allprojects{
+    jar {
+        enabled = false
+        // 禁用档案后缀，处理 **-plain.jar
+        archiveClassifier = ''
+    }
+    // 默认不需要打可执行jar包
+    bootJar {
+        enabled = false
+    }
+}
+
 
 subprojects {
     apply plugin: 'java'
@@ -46,6 +59,13 @@ subprojects {
         mavenLocal()
         mavenCentral()
 
+    }
+
+    dependencies {
+        annotationProcessor('org.projectlombok:lombok:1.18.20')
+        testImplementation('org.projectlombok:lombok:1.18.20')
+        testAnnotationProcessor('org.projectlombok:lombok:1.18.20')
+        api('org.projectlombok:lombok:1.18.20')
     }
 
     test {

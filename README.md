@@ -21,19 +21,21 @@
     - [7.6.4. 文件拷贝](#764-文件拷贝)
   - [7.7. 依赖库范围](#77-依赖库范围)
   - [7.8. 日志处理](#78-日志处理)
-  - [7.9. 项目打包](#79-项目打包)
-  - [7.10. 常用命令](#710-常用命令)
+  - [7.9. 常用命令](#79-常用命令)
 - [8. Gradle进阶](#8-gradle进阶)
+  - [8.1. 构建JAVA项目](#81-构建java项目)
   - [8.1. 生命周期](#81-生命周期)
     - [8.1.1. 构建阶段](#811-构建阶段)
     - [8.1.2. 配置文件](#812-配置文件)
     - [8.1.3. 初始化](#813-初始化)
+    - [8.1.4. 构建生命周期](#814-构建生命周期)
   - [8.2. 多环境](#82-多环境)
   - [8.3. 插件](#83-插件)
     - [8.3.1. 二进制插件](#831-二进制插件)
     - [8.3.2. 自定义插件](#832-自定义插件)
     - [8.3.3. 脚本插件](#833-脚本插件)
     - [8.3.4. 插件社区](#834-插件社区)
+    - [8.3.5. 项目打包](#835-项目打包)
   - [8.4. 项目发布](#84-项目发布)
 
 <!-- /TOC -->
@@ -438,50 +440,15 @@ task taskFileCopy(type: Copy) {
 
 ![20210909162056](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909162056.png)
 
-### 7.9. 项目打包
-
-一个完整的项目打包过程中，会包含三个 `*.jar` 文件：主程序 `projectName-version.jar`、源代码 `projectName-version-sources.jar`、文档 `projectName-version-javadoc.jar`，所以要想在 `Gradle`中生成上述文档，需要在项目定义相关的任务处理来完成这三个文件的输出。
-
-~~~gradle
-apply plugin: 'java'
-group 'xyz.wongs.gradle'
-version '1.0-SNAPSHOT'
-def jdkVersion = 1.8
-sourceCompatibility = jdkVersion
-targetCompatibility = jdkVersion
-repositories { mavenCentral() }
-dependencies { compile('org.apache.poi:poi:5.0.0') }
-test { useJUnitPlatform() }
-//程序主类名称
-def mainClass = 'xyz/wongs/gradle/GradleStart.java'
-jar {
-// Jar文件名称
-    archiveBaseName = 'grad'
-    manifestContentCharset = 'UTF-8'
-    //文件编码
-    metadataCharset('UTF-8')
-    //内容编码
-    manifest {
-        //程序主版本号
-        attributes 'Manifest-Version': getArchiveVersion().getOrNull(),
-                'Main-Class': "$mainClass",
-                'Implementation-Titile': 'grad-Tiltle',
-                'Implementation-Version': archiveVersion     //版本编号
-        // 所有第三方包放置到 lib文件夹下
-    }
-    into('lib') {
-        //运行时组件
-        from configurations.runtime
-    }
-}
-
-~~~
-
-### 7.10. 常用命令
+### 7.9. 常用命令
 
 ![20210909162804](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909162804.png)
 
 ## 8. Gradle进阶
+
+### 8.1. 构建JAVA项目
+
+
 
 ### 8.1. 生命周期
 
@@ -495,9 +462,29 @@ jar {
   
 #### 8.1.2. 配置文件
 
+除了构建脚本文件之外，Gradle 还定义了一个设置文件。设置文件由 Gradle 通过命名约定确定此文件的默认名称是 settings.gradle。设置文件在初始化阶段执行。多项目构建必须在多项目层次结构的根项目中有一个 settings.gradle 文件，定义了哪些项目参与构建，但是对于单项目构建，设置文件是可选的。
+
+~~~gradle
+
+rootProject.name = 'pippin'
+
+include('pippin-common')
+include('pippin-common:common-utils')
+include('pippin-service')
+
+~~~
+
 #### 8.1.3. 初始化
 
+`Gradle` 会使用 `settings.gradle` 配置文件的触发多项目构建。在 `settings.gradle` 文件的项目中执行 `Gradle`，当在没有 `settings.gradle` 文件的项目中执行 `Gradle` ，`Gradle` 则通常按照以下规则查找 `settings.gradle` 文件。
 
+- 在父目录中查找 `settings.gradle`
+- 如果未找到，则构建作为单个项目构建执行
+- 如果找到 `settings.gradle` 文件，`Gradle` 会检查当前项目是否是在找到的 `settings.gradle` 文件中定义的多项目层次结构的一部分，如果没有，构建将作为单个项目构建执行；否则执行多项目构建。
+
+#### 8.1.4. 构建生命周期
+
+整个构建过程的生命周期中可以定义接收通知，接收通知主要有两种形式：实现特定的侦听器接口，或者提供一个闭包以在通知被触发时执行。
 
 ### 8.2. 多环境
 
@@ -617,6 +604,46 @@ class WorkPlugin implements Plugin<Project>{
 #### 8.3.4. 插件社区
 
 Gradle 拥有一个充满活力的插件开发者社区，他们为各种功能贡献了插件 ，[官方地址](https://plugins.gradle.org/)
+
+#### 8.3.5. 项目打包
+
+一个完整的项目打包过程中，会包含三个 `*.jar` 文件：主程序 `projectName-version.jar`、源代码 `projectName-version-sources.jar`、文档 `projectName-version-javadoc.jar`，所以要想在 `Gradle`中生成上述文档，需要在项目定义相关的任务处理来完成这三个文件的输出。
+
+~~~gradle
+apply plugin: 'java'
+group 'xyz.wongs.gradle'
+version '1.0-SNAPSHOT'
+def jdkVersion = 1.8
+sourceCompatibility = jdkVersion
+targetCompatibility = jdkVersion
+repositories { mavenCentral() }
+dependencies { compile('org.apache.poi:poi:5.0.0') }
+test { useJUnitPlatform() }
+//程序主类名称
+def mainClass = 'xyz/wongs/gradle/GradleStart.java'
+jar {
+// Jar文件名称
+    archiveBaseName = 'grad'
+    manifestContentCharset = 'UTF-8'
+    //文件编码
+    metadataCharset('UTF-8')
+    //内容编码
+    manifest {
+        //程序主版本号
+        attributes 'Manifest-Version': getArchiveVersion().getOrNull(),
+                'Main-Class': "$mainClass",
+                'Implementation-Titile': 'grad-Tiltle',
+                'Implementation-Version': archiveVersion     //版本编号
+        // 所有第三方包放置到 lib文件夹下
+    }
+    into('lib') {
+        //运行时组件
+        from configurations.runtime
+    }
+}
+
+~~~
+
 
 ### 8.4. 项目发布
 

@@ -1,7 +1,9 @@
 rootProject.name = 'pippin'
 
-include('pippin-common')
-include('pippin-common:common-utils')
-include('pippin-service')
+include 'groovy-demo'
+
+include 'pippin-common:common-utils'
+include 'pippin-common:common-persistence:persistence-jpa'
+include 'pippin-service'
 
 

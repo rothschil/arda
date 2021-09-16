@@ -10,6 +10,8 @@ package xyz.wongs.drunkard.base.constant;
 */
 public class Constant {
 
+    public static String DB_TYPE ="db.type";
+
     public static final String RANDOM_STR="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     public static final String IP_LOCAL_ADDREE = "unknown";
@@ -18,8 +20,8 @@ public class Constant {
 
     /** BEGIN  JAVA基础类型 **/
     public static final String BASIC_TYPE_INTEGER = "Integer";
-    public static final String BASIC_TYPE_BIGDECIMAL = "BigDecimal";
-    public static final String BASIC_TYPE_Long = "Long";
+    public static final String BASIC_TYPE_BIG_DECIMAL = "BigDecimal";
+    public static final String BASIC_TYPE_LONG = "Long";
     public static final String BASIC_TYPE_DATE = "Date";
     public static final String BASIC_TYPE_INT = "int";
     public static final String BASIC_TYPE_STRING = "String";
