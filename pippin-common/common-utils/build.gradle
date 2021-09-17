@@ -15,17 +15,18 @@ dependencies {
             libraries.'commons-lang3',
             libraries.'commons-codec',
             libraries.'commons-configuration',
+            libraries.'druid-spring-boot-starter',
+            libraries.'mysql-connector-java',
+            libraries.'spring-boot-starter-web',
             libraries.'validation-api',
             libraries.'javax.servlet-api',
             libraries.'fastjson',
             libraries.'guava',
             libraries.'javax-annotation',
-
+            libraries.'spring-boot-starter-aop',
             libraries.'hutool-all'
     )
-    api(libraries.'spring-boot-starter-web')
-
-
+    compileOnly(libraries.'spring-tx')
 
     api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
     api group: 'org.hyperic', name: 'sigar', version: '1.6.4'

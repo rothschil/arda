@@ -63,16 +63,41 @@ public class ThreadPoolUtils {
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(queueSize);
 
         // 2、自定义线程名字
-        ThreadFactory threadFactory = new CoustomThreadFactory(theadName);
+        ThreadFactory threadFactory = new PippinThreadFactory(theadName);
 
 
 
         return doCreate(corePoolSize, maximumPoolSize,keepAliveTime, unit, queue,threadFactory, getRejectedExecutionHandler());
     }
 
+    /**
+     * @Description
+     * @param corePoolSize  核心线程数
+     * @param maximumPoolSize   允许并行最大核心线程数
+     * @param keepAliveTime 当线程数大于内核数时，这是多余的空闲线程将在终止之前等待新任务的最长时间
+     * @param unit    时间的单位
+     * @param workQueue 在执行任务之前用于保留任务的队列，此队列将仅保存execute方法提交的Runnable任务。
+     * @param theadName   指定线程名字
+     * @return java.util.concurrent.ExecutorService
+     * @throws
+     * @date 20/11/19 16:23
+     */
+    public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize,int keepAliveTime,TimeUnit unit,
+                                              @NotNull BlockingQueue<Runnable> workQueue,
+                                              @NotNull String theadName){
+        // 初始化大小
+        int poolSize = getCorePoolSize(corePoolSize);
+        // 2、自定义线程名字
+        ThreadFactory threadFactory = new PippinThreadFactory(theadName);
+        // 3、自定义线程池超出容量的拒绝策略
+        RejectedExecutionHandler policy = new PippinRejectedExecutionHandler();
+        return new ThreadPoolExecutor(poolSize, maximumPoolSize,keepAliveTime, unit, workQueue,threadFactory, policy);
+    }
+
+
     public static RejectedExecutionHandler getRejectedExecutionHandler(){
         // 3、自定义线程池超出容量的拒绝策略
-        return new CoustomRejectedExecutionHandler();
+        return new PippinRejectedExecutionHandler();
     }
 
     /** 判断 核心线程池大小 是否 超出 CPU数量，设定合理的线程池大小
@@ -116,7 +141,7 @@ public class ThreadPoolUtils {
 
 
     public static ScheduledExecutorService doCreate(@NotNull int corePoolSize,@NotNull String theadName){
-        ThreadFactory threadFactory = new CoustomThreadFactory(theadName);
+        ThreadFactory threadFactory = new PippinThreadFactory(theadName);
         return doCreate(corePoolSize,threadFactory);
     }
 

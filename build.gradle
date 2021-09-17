@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'java-library'
     id 'org.springframework.boot' version '2.5.0'
-
 }
 apply plugin: 'io.spring.dependency-management'
 
@@ -158,13 +157,13 @@ subprojects {
     }
 
     // 所有操作准备好触发该任务
-    gradle.taskGraph.whenReady {
-        tasks.each {
-            if (it.getName().contains('test')) {
-                it.enabled(false)
-            }
-        }
-    }
+//    gradle.taskGraph.whenReady {
+//        tasks.each {
+//            if (it.getName().contains('test')) {
+//                it.enabled(false)
+//            }
+//        }
+//    }
 }
 
 

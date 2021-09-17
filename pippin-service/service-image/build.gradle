@@ -1,0 +1,8 @@
+archivesBaseName = 'service-image'
+dependencies {
+    implementation project(':pippin-common:common-persistence:persistence-mybatis')
+    implementation('org.springframework.boot:spring-boot-starter-thymeleaf:2.5.0')
+    implementation('javax.persistence:javax.persistence-api:2.2')
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.5.0')
+
+}
