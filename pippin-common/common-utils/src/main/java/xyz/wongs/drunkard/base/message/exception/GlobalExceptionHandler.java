@@ -49,8 +49,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DrunkardException.class)
     @ResponseBody
     public ErrorResult handleWeathertopException(DrunkardException ex) {
-        LOG.error("WeathertopRuntimeException code:{},msg:{}", ex.getCode(), ex.getMessage());
-        return ErrorResult.fail(ex.getCode(), ex.getMessage());
+        LOG.error("WeathertopRuntimeException code:{},msg:{}", ex.getStatus(), ex.getMessage());
+        return ErrorResult.fail(ex.getStatus(), ex.getMessage());
     }
 
     /**

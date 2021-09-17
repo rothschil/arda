@@ -13,6 +13,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import xyz.wongs.drunkard.base.message.annoation.ResponseResult;
+import xyz.wongs.drunkard.base.message.response.ErrorResult;
 import xyz.wongs.drunkard.base.message.response.Result;
 
 import javax.annotation.Nullable;
@@ -51,7 +52,7 @@ public class ResponseResultHandler implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body,@Nullable MethodParameter returnType, @Nullable MediaType selectContentType, Class<? extends HttpMessageConverter<?>> selectConverterType, @Nullable ServerHttpRequest request,@Nullable ServerHttpResponse response) {
         LOG.error(" ENTER MSG .... Excuse");
-        if(body instanceof Result){
+        if(body instanceof Result || body instanceof ErrorResult){
             return body;
         }
         return Result.success(body);

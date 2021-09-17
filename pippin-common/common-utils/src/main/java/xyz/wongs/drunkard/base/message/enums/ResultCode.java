@@ -102,24 +102,24 @@ public enum ResultCode {
     /**
      *
      */
-    private Integer code;
+    private Integer status;
 
     /**
      *
      */
     private String msg;
 
-    ResultCode(Integer code, String msg) {
-        this.code = code;
+    ResultCode(Integer status, String msg) {
+        this.status = status;
         this.msg = msg;
     }
 
-    public Integer getCode() {
-        return code;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public String getMsg() {

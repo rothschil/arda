@@ -28,7 +28,7 @@ public class ErrorResult extends SubResult implements Serializable {
 
     public static ErrorResult fail(ResultCode resultCode, Throwable e) {
         ErrorResult errorResult = new ErrorResult();
-        errorResult.setCode(resultCode.getCode());
+        errorResult.setCode(resultCode.getStatus());
         errorResult.setMessage(resultCode.getMsg());
         errorResult.setException(e.getClass().getName());
         return errorResult;

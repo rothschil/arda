@@ -23,13 +23,13 @@ public class Result extends SubResult implements Serializable {
     }
 
     public Result(ResultCode resultCode, Object data) {
-        this.code = resultCode.getCode();
+        this.code = resultCode.getStatus();
         this.message = resultCode.getMsg();
         this.data = data;
     }
 
     private void setResultCode(ResultCode resultCode) {
-        this.code = resultCode.getCode();
+        this.code = resultCode.getStatus();
         this.message = resultCode.getMsg();
     }
 

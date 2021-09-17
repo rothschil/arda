@@ -18,7 +18,7 @@ public class DrunkardException extends RuntimeException{
     /**
      * 错误码
      */
-    private Integer code;
+    private Integer status;
 
     /**
      * 错误信息
@@ -31,13 +31,13 @@ public class DrunkardException extends RuntimeException{
 
     public DrunkardException(ResultCode resultCode) {
         super(resultCode.getMsg());
-        this.code = resultCode.getCode();
+        this.status = resultCode.getStatus();
         this.message = resultCode.getMsg();
     }
 
     public DrunkardException(ResultCode resultCode, Throwable cause) {
         super(resultCode.getMsg(), cause);
-        this.code = resultCode.getCode();
+        this.status = resultCode.getStatus();
         this.message = resultCode.getMsg();
     }
 
@@ -49,19 +49,19 @@ public class DrunkardException extends RuntimeException{
 
     public DrunkardException(String message) {
         super(message);
-        this.setCode(-1);
+        this.setStatus(-1);
         this.message = message;
     }
 
-    public DrunkardException(Integer code, String message) {
+    public DrunkardException(Integer status, String message) {
         super(message);
-        this.code = code;
+        this.status = status;
         this.message = message;
     }
 
-    public DrunkardException(Integer code, String message, Throwable cause) {
+    public DrunkardException(Integer status, String message, Throwable cause) {
         super(message, cause);
-        this.code = code;
+        this.status = status;
         this.message = message;
     }
 
@@ -70,12 +70,12 @@ public class DrunkardException extends RuntimeException{
         return this;
     }
 
-    public Integer getCode() {
-        return code;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     @Override
