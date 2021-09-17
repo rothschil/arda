@@ -4,7 +4,6 @@ plugins {
     id 'org.springframework.boot' version '2.5.0'
 
 }
-apply plugin: 'idea'
 apply plugin: 'io.spring.dependency-management'
 
 version project_version
@@ -15,18 +14,15 @@ repositories {
     mavenCentral()
 }
 
-allprojects{
-    jar {
-        enabled = false
-        // 禁用档案后缀，处理 **-plain.jar
-        archiveClassifier = ''
-    }
-    // 默认不需要打可执行jar包
-    bootJar {
-        enabled = false
-    }
+jar {
+    enabled = false
+    // 禁用档案后缀，处理 **-plain.jar
+    archiveClassifier = ''
 }
-
+// 默认不需要打可执行jar包
+bootJar {
+    enabled = false
+}
 
 subprojects {
     apply plugin: 'java'
@@ -95,10 +91,8 @@ subprojects {
         }
     }
 
-    task docTask(type: Javadoc) {
+    task javaDoc(type: Javadoc) {
         //  delete("javadoc/")
-        //定义所有Java源代码
-        source = sourceSets.main.allJava
         options.encoding = 'UTF-8'
         options.charSet = 'UTF-8'
         //保留 public 的方法
@@ -111,16 +105,18 @@ subprojects {
         options.noTree = true
         options.noIndex = true
         options.noNavBar = true
+        //定义所有Java源代码
+        source = sourceSets.main.allJava
         // destinationDir = file("javadoc/") //生成 javadoc 的目标目录
         //报错不中断
         failOnError = false
     }
 
-    task docJarTask(type: Jar, dependsOn: docTask) {
+    task javaDocJar(type: Jar, dependsOn: javaDoc) {
         // 文件标记
         archiveClassifier="javadoc"
         // 通过javaDocTask 找到目标路径
-        from docTask.destinationDir
+        from javaDoc.destinationDir
     }
 
     //自定义打包任务，继承Jar，并且依赖classes，最终编译才打包 dependsOn: [classes]
@@ -133,7 +129,7 @@ subprojects {
     //最终打包任务操作，将所有任务放入build
     artifacts {
         archives(sourceTask)
-        archives(docJarTask)
+        archives(javaDocJar)
     }
 
     publishing {
@@ -142,11 +138,9 @@ subprojects {
                 groupId= "$project.group"
                 artifactId="$project.name"
                 version = "$project.version"
-                println("$project.name" + ": version = "+version)
-
                 from components.java
                 artifact sourceTask
-                artifact docJarTask
+                artifact javaDocJar
             }
         }
         repositories {

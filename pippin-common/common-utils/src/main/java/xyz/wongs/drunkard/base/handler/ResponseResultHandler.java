@@ -45,7 +45,7 @@ public class ResponseResultHandler implements ResponseBodyAdvice<Object> {
         Assert.notNull(sra,"The ServletRequestAttributes must not be null");
         HttpServletRequest request = sra.getRequest();
         ResponseResult responseResult = (ResponseResult)request.getAttribute(RESPONSE_RESULT_ANN);
-        return responseResult==null;
+        return responseResult!=null;
     }
 
     @Override

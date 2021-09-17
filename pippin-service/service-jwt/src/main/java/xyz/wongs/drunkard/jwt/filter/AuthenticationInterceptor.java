@@ -5,6 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
@@ -18,6 +20,7 @@ import xyz.wongs.drunkard.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
@@ -28,6 +31,8 @@ import java.lang.reflect.Method;
  * @Version 1.0.0
  */
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    static Logger LOG = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 
     private static String TOKEN = "token";
 
@@ -51,7 +56,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         if (!method.isAnnotationPresent(LoginToken.class)) {
             return true;
         }
-
         LoginToken loginToken = method.getAnnotation(LoginToken.class);
         if (loginToken.required()) {
             String token = request.getHeader(TOKEN);

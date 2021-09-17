@@ -24,19 +24,21 @@
   - [7.9. 常用命令](#79-常用命令)
 - [8. Gradle进阶](#8-gradle进阶)
   - [8.1. 构建JAVA项目](#81-构建java项目)
-  - [8.1. 生命周期](#81-生命周期)
-    - [8.1.1. 构建阶段](#811-构建阶段)
-    - [8.1.2. 配置文件](#812-配置文件)
-    - [8.1.3. 初始化](#813-初始化)
-    - [8.1.4. 构建生命周期](#814-构建生命周期)
-  - [8.2. 多环境](#82-多环境)
-  - [8.3. 插件](#83-插件)
-    - [8.3.1. 二进制插件](#831-二进制插件)
-    - [8.3.2. 自定义插件](#832-自定义插件)
-    - [8.3.3. 脚本插件](#833-脚本插件)
-    - [8.3.4. 插件社区](#834-插件社区)
-    - [8.3.5. 项目打包](#835-项目打包)
-  - [8.4. 项目发布](#84-项目发布)
+  - [8.2. 多任务并行](#82-多任务并行)
+    - [创建自定义任务类](#创建自定义任务类)
+  - [8.3. 生命周期](#83-生命周期)
+    - [8.3.1. 构建阶段](#831-构建阶段)
+    - [8.3.2. 配置文件](#832-配置文件)
+    - [8.3.3. 初始化](#833-初始化)
+    - [8.3.4. 构建生命周期](#834-构建生命周期)
+  - [8.4. 多环境](#84-多环境)
+  - [8.5. 插件](#85-插件)
+    - [8.5.1. 二进制插件](#851-二进制插件)
+    - [8.5.2. 自定义插件](#852-自定义插件)
+    - [8.5.3. 脚本插件](#853-脚本插件)
+    - [8.5.4. 插件社区](#854-插件社区)
+    - [8.5.5. 项目打包](#855-项目打包)
+  - [8.6. 项目发布](#86-项目发布)
 
 <!-- /TOC -->
 
@@ -98,22 +100,23 @@
 |   \---common-utils    ------------------常用工具包，集成通用基类，供其他模块引入
 │      │  build.gradle  ------------------工具包的构建文件
 │      │  dependencies.gradle   ----------配置
-|---pippin-service      ------------------样例服务，这里用的一个JWT做个演示
-|    └─src
-|       ├─main
-|       │  └─resources
-|       │     ├─application.yml
-|       │       ├─config.properties
-|       │  ├─config
-|       │  │  ├─dev
-|       │  │  │ ├─application.prperties ----开发环境配置
-|       │  │  │      
-|       │  │  └─prod
-|       │  │    ├─application.prperties ----生产环境配置
-|   │  build.gradle     ------------------构建文件
-|   │  dependencies-dev.gradle  ----------开发环境配置
-|   │  dependencies-prod.gradle ----------生产环境配置
-|   │  dependencies-test.gradle ----------测试环境配置
+|---pippin-service      ------------------样例服务
+|   \---service-jwt     ------------------JWT服务示例
+|       └─src
+|   |       ├─main
+|   |       │  └─resources
+|   |       │     ├─application.yml
+|   |       │       ├─config.properties
+|   |       │  ├─config
+|   |       │  │  ├─dev
+|   |       │  │  │ ├─application.prperties ----开发环境配置
+|   |       │  │  │      
+|   |       │  │  └─prod
+|   |       │  │    ├─application.prperties ----生产环境配置
+|   |   │  build.gradle     ------------------构建文件
+|   │   |  dependencies-dev.gradle  ----------开发环境配置
+|   │   |  dependencies-prod.gradle ----------生产环境配置
+|   │   |  dependencies-test.gradle ----------测试环境配置
 │  .gitignore           ------------------配置git忽略索要文件
 │  build.gradle         ------------------根目录的构建核心文件
 │  gradle.properties    ------------------根目录的属性文件，这是默认命名
@@ -156,7 +159,7 @@
 
 ## 7. Gradle基础
 
-通过上面对`Groovy`语法的介绍，这一章节，通过以`Groovy` 来编写`Gradle`任务。
+通过上面对`Groovy`语法的介绍，这一章节，通过以 `Groovy` 来编写 `Gradle` 任务。
 
 ### 7.1. 任务创建
 
@@ -302,7 +305,7 @@ task taskExtends(type: CustomerTask) {
 
 ### 7.5. 任务依赖
 
-任务之间的依赖关系，为了方便控制任务执行过程中的优先级，如同我们 `Maven`中，在运行 `jar`任务之前，`complie`任务一定要执行过，也就是 `jar`依赖于`compile`，在 `Gradle`中，通过 `DependsOn`控制依赖关系，`DependsOn` 是 `Task`类的一个方法，可以接受多个依赖的任务作为参数
+任务之间的依赖关系，为了方便控制任务执行过程中的优先级，如同我们 `Maven` 中，在运行 `jar`任务之前，`complie`任务一定要执行过，也就是 `jar` 依赖于`compile`，在 `Gradle` 中，通过 `DependsOn`控制依赖关系，`DependsOn` 是 `Task` 类的一个方法，可以接受多个依赖的任务作为参数
 
 ![20210909161417](https://abram.oss-cn-shanghai.aliyuncs.com/blog/gradle/20210909161417.png)
 
@@ -344,11 +347,12 @@ task taskDependsOnA(dependsOn: [taskDependsOnB]) {
 ### 7.6. 文件处理
 
 编写多任务处理过程中需要用到对各类资源文件的控制，涉及到 `Gradle`对文件操作，常用的对文件操作主要有：
+
 - 本地文件：指定文件的相对路径或绝对路径来对文件的操作
 - 文件集合：对一组文件的列表进行操作，但文件集合中的文件对象是延迟，任务调用才会创建
 - 文件树：有层级结构的文件集合，一个文件树它可以代表一个目录结构或一 `ZIP` 压缩包中的内容结构。文件树是从文件集合继承过来的，所以文件树具有文件集合所有的功能。
 - 文件拷贝：可以使用 `Copy`任务来拷贝文件，通过它可以过虑指定拷贝内容，还能对文件进行重命名操作等。Copy任务必须指定一组需要拷贝的文件和拷贝到的目录
-- 归档文件：通常一个项目会有很多的 `Jar` 包，将项目打包成一个 `WAR`、`ZIP`、`TAR` 包进行发布，可以使用 `Zip`，`Tar`，`Jar`，`War`和Ear任务来实现
+- 归档文件：通常一个项目会有很多的 `Jar` 包，将项目打包成一个 `WAR`、`ZIP`、`TAR` 包进行发布，可以使用 `Zip`，`Tar`，`Jar`，`War`和 `Ear` 任务来实现
 
 #### 7.6.1. 本地文件
 
@@ -449,20 +453,28 @@ task taskFileCopy(type: Copy) {
 ### 8.1. 构建JAVA项目
 
 
+### 8.2. 多任务并行
 
-### 8.1. 生命周期
+`Gradle`  `Worker API` 提供将任务的操作分解为相互独立的工作单元，通过并发和异步执行来提供执行能力。
+
+这里通过一个例子来说，这个例子对文件生成相应 `MD5` 校验值，在此过程中我们使用 `Worker API` ，阐述不通隔离级别下多任务并行。
+
+#### 创建自定义任务类
+
+
+### 8.3. 生命周期
 
 `Gradle` 保证这些任务按照它们的依赖顺序执行，并且每个任务只执行一次，最终任务会形成了一个有向无环图。
 
-#### 8.1.1. 构建阶段
+#### 8.3.1. 构建阶段
 
 - 初始化阶段： `Gradle` 支持单项目和多项目构建。在初始化阶段， `Gradle` 确定哪些项目将参与构建，并为每个项目创建一个 `Project` 实例
 - 配置阶段：在此阶段配置项目对象。执行作为构建一部分的所有项目的构建脚本
 - 执行阶段： `Gradle` 确定在配置阶段创建和配置的要执行的任务的子集，再将子集传递给 `gradle` 命令和当前目录的任务名称参数决定。 `Gradle` 然后执行每个选定的任务
   
-#### 8.1.2. 配置文件
+#### 8.3.2. 配置文件
 
-除了构建脚本文件之外，Gradle 还定义了一个设置文件。设置文件由 Gradle 通过命名约定确定此文件的默认名称是 settings.gradle。设置文件在初始化阶段执行。多项目构建必须在多项目层次结构的根项目中有一个 settings.gradle 文件，定义了哪些项目参与构建，但是对于单项目构建，设置文件是可选的。
+除了构建脚本文件之外， `Gradle` 还定义了一个设置文件。设置文件由 `Gradle` 通过命名约定确定此文件的默认名称是 `settings.gradle`。设置文件在初始化阶段执行。多项目构建必须在多项目层次结构的根项目中有一个 `settings.gradle` 文件，定义了哪些项目参与构建，但是对于单项目构建，设置文件是可选的。
 
 ~~~gradle
 
@@ -474,7 +486,7 @@ include('pippin-service')
 
 ~~~
 
-#### 8.1.3. 初始化
+#### 8.3.3. 初始化
 
 `Gradle` 会使用 `settings.gradle` 配置文件的触发多项目构建。在 `settings.gradle` 文件的项目中执行 `Gradle`，当在没有 `settings.gradle` 文件的项目中执行 `Gradle` ，`Gradle` 则通常按照以下规则查找 `settings.gradle` 文件。
 
@@ -482,13 +494,14 @@ include('pippin-service')
 - 如果未找到，则构建作为单个项目构建执行
 - 如果找到 `settings.gradle` 文件，`Gradle` 会检查当前项目是否是在找到的 `settings.gradle` 文件中定义的多项目层次结构的一部分，如果没有，构建将作为单个项目构建执行；否则执行多项目构建。
 
-#### 8.1.4. 构建生命周期
+#### 8.3.4. 构建生命周期
 
 整个构建过程的生命周期中可以定义接收通知，接收通知主要有两种形式：实现特定的侦听器接口，或者提供一个闭包以在通知被触发时执行。
 
-### 8.2. 多环境
+### 8.4. 多环境
 
 目开发过程中，有开发环境、测试环境、生产环境，每个环境的配置也相同，与`Maven`项目类似，`Gradle`配置多环境用在环境属性文件和依赖配置 两个地方，实现可分为以下步骤：
+
 - 通过约定规则，编写多环境信息
 - 在 `build.gradle`文件中添加获取
 
@@ -502,7 +515,7 @@ def env=System.getProperty('env')?:'dev'
 -D{属性名称}={内容}
 ~~~
 
-### 8.3. 插件
+### 8.5. 插件
 
 `Gradle` 中有两种通用类型的插件，二进制插件和脚本插件。
 
@@ -528,11 +541,11 @@ def env=System.getProperty('env')?:'dev'
 | JaCoCo插件 | 分析单元测试覆盖率的工具 |
 | Sonar插件 | 分析检查代码质量 |
 
-#### 8.3.1. 二进制插件
+#### 8.5.1. 二进制插件
 
 `Gradle` 提供核心插件作为其发行版的一部分，它们会自动解析，即官方插件。非核心二进制插件需要先解决才能应用。
 
-#### 8.3.2. 自定义插件
+#### 8.5.2. 自定义插件
 
 自定义 `Gradle` 插件，需要编写一个实现 `Plugin` 接口的类，当插件应用于项目时，`Gradle` 会创建插件类的实例并调用该实例的 `Plugin.apply()` 方法，项目对象作为参数传递，插件使用项目对象来配置项目。
 
@@ -597,55 +610,20 @@ class WorkPlugin implements Plugin<Project>{
 
 ~~~
 
-#### 8.3.3. 脚本插件
+#### 8.5.3. 脚本插件
 
 脚本插件会自动解析，可以从本地文件系统或远程位置的脚本中应用，文件的位置是相对于项目目录，如果是远程脚本位置使用 `HTTP URL` 指定。
 
-#### 8.3.4. 插件社区
+#### 8.5.4. 插件社区
 
-Gradle 拥有一个充满活力的插件开发者社区，他们为各种功能贡献了插件 ，[官方地址](https://plugins.gradle.org/)
+`Gradle` 拥有一个充满活力的插件开发者社区，他们为各种功能贡献了插件 ，[官方地址](https://plugins.gradle.org/)
 
-#### 8.3.5. 项目打包
+#### 8.5.5. 项目打包
 
 一个完整的项目打包过程中，会包含三个 `*.jar` 文件：主程序 `projectName-version.jar`、源代码 `projectName-version-sources.jar`、文档 `projectName-version-javadoc.jar`，所以要想在 `Gradle`中生成上述文档，需要在项目定义相关的任务处理来完成这三个文件的输出。
 
-~~~gradle
-apply plugin: 'java'
-group 'xyz.wongs.gradle'
-version '1.0-SNAPSHOT'
-def jdkVersion = 1.8
-sourceCompatibility = jdkVersion
-targetCompatibility = jdkVersion
-repositories { mavenCentral() }
-dependencies { compile('org.apache.poi:poi:5.0.0') }
-test { useJUnitPlatform() }
-//程序主类名称
-def mainClass = 'xyz/wongs/gradle/GradleStart.java'
-jar {
-// Jar文件名称
-    archiveBaseName = 'grad'
-    manifestContentCharset = 'UTF-8'
-    //文件编码
-    metadataCharset('UTF-8')
-    //内容编码
-    manifest {
-        //程序主版本号
-        attributes 'Manifest-Version': getArchiveVersion().getOrNull(),
-                'Main-Class': "$mainClass",
-                'Implementation-Titile': 'grad-Tiltle',
-                'Implementation-Version': archiveVersion     //版本编号
-        // 所有第三方包放置到 lib文件夹下
-    }
-    into('lib') {
-        //运行时组件
-        from configurations.runtime
-    }
-}
 
-~~~
-
-
-### 8.4. 项目发布
+### 8.6. 项目发布
 
 项目发布我们使用插件 `maven-publish`，将构建内容发布到`Apache Maven`存储库的功能。可以被 `Maven`、`Gradle` 和其他了解 `Maven` 存储库格式的工具使用
 

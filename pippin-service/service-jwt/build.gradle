@@ -1,4 +1,4 @@
-archivesBaseName = 'pippin-service'
+archivesBaseName = 'service-jwt'
 def env =System.getProperty('env')?:'dev'
 apply from: "dependencies-${env}.gradle"
 jar.enabled = true
@@ -16,4 +16,3 @@ dependencies {
 }
 
 bootJar.enabled = true
-

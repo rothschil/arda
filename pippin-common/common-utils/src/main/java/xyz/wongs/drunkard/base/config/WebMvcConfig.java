@@ -3,6 +3,8 @@ package xyz.wongs.drunkard.base.config;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -26,6 +28,8 @@ import java.util.List;
 */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    static Logger LOG = LoggerFactory.getLogger(WebMvcConfig.class);
 
     @Autowired
     private ResponseResultInterceptor responseResultInterceptor;

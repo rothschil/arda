@@ -1,14 +1,18 @@
 package xyz.wongs.drunkard.base.interceptor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import xyz.wongs.drunkard.base.config.WebMvcConfig;
 import xyz.wongs.drunkard.base.message.annoation.ResponseResult;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
@@ -21,12 +25,15 @@ import java.lang.reflect.Method;
 @Component
 public class ResponseResultInterceptor implements HandlerInterceptor {
 
+    static Logger LOG = LoggerFactory.getLogger(ResponseResultInterceptor.class);
     private static final String RESPONSE_RESULT_ANN = "RESPONSE-RESULT-ANN";
 
     @Override
     public boolean preHandle(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Object handler) {
         Assert.notNull(request,"The request must not be null");
         Assert.notNull(response,"The response must not be null");
+
+
         try {
             if (handler instanceof HandlerMethod) {
                 final HandlerMethod handlerMethod = (HandlerMethod) handler;

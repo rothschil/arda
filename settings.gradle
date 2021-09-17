@@ -4,6 +4,6 @@ include 'groovy-demo'
 
 include 'pippin-common:common-utils'
 include 'pippin-common:common-persistence:persistence-jpa'
-include 'pippin-service'
+include 'pippin-service:service-jwt'
 
 
