@@ -15,4 +15,8 @@ Java中标识符使用的是字母、数字、_、$ 组合模式，但不能使�
 */
 
 def msg = 'Groovy'
-print(msg+" ,对应的类型是 "+ msg.class)
+println(msg+" ,对应的类型是 "+ msg.class)
+
+def str = 'Groovy \t'
+
+print(" str "+ str * 3)

@@ -23,6 +23,7 @@ bootJar {
     enabled = false
 }
 
+// 只针对子目录进行生效
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -318,16 +319,21 @@ class CustomerTask extends DefaultTask {
     def doLast() {
         println '【3、Extends-doLast】 doLast Operation'
     }
+
+    @TaskAction
+    def doWolf() {
+        println '【3、Extends-doWolf】 doWolf Operation'
+    }
 }
 
 task taskExtends(type: CustomerTask) {
     description('Extends Demo')
     doFirst {
-        println '【3、Extends】继承'
+        println '【3、Extends】Extend'
     }
 
     doLast {
-        println '【3、Extends】继承'
+        println '【3、Extends】Extend'
     }
 }
 
@@ -482,7 +488,7 @@ def Task taskLocalFile = task(taskLocalFile) {
 // 2、文件集合
 def Task taskCollectionFile = task(taskCollectionFile) {
     doFirst {
-        File _fileList = file('gvoovy-demo/src/gvy01')
+        File _fileList = file('groovy-demo/src/gvy01')
         def FileCollection collection = files(_fileList.listFiles())    // 获取文件列表
         collection.each { println(it) }   // 遍历文件列表
         Set _set1 = collection.files        // 文件集合转为 Set
@@ -495,7 +501,7 @@ def Task taskCollectionFile = task(taskCollectionFile) {
 // 3、文件树
 def Task taskFileTree = task(taskFileTree) {
     doFirst {
-        FileTree _fileTree = fileTree('gvoovy-demo/src/gvy01')  // 1、指定目录创建文件树对象
+        FileTree _fileTree = fileTree('groovy-demo/src/gvy01')  // 1、指定目录创建文件树对象
         _fileTree.include '**/*.groovy'     // 添加包含指定文件
         _fileTree.exclude '**/del*'         // 添加排除指定文件
         // 2、使用路径创建文件树对象，同时指定包含的文件
@@ -505,9 +511,9 @@ def Task taskFileTree = task(taskFileTree) {
             include '**/*.groovy'
         }
 
-        _fileTree = fileTree(dir: 'gvoovy-demo/src/gvy01', include: '**/*.groovy')  // 通过map创建文件树
-        _fileTree = fileTree(dir: 'gvoovy-demo/src/gvy01', includes: ['**/*.groovy', '**/*.xml'])
-        _fileTree = fileTree(dir: 'gvoovy-demo/src/gvy01', include: '**/*.groovy', exclude: '**/*del*/**')
+        _fileTree = fileTree(dir: 'groovy-demo/src/gvy01', include: '**/*.groovy')  // 通过map创建文件树
+        _fileTree = fileTree(dir: 'groovy-demo/src/gvy01', includes: ['**/*.groovy', '**/*.xml'])
+        _fileTree = fileTree(dir: 'groovy-demo/src/gvy01', include: '**/*.groovy', exclude: '**/*del*/**')
 
         _fileTree.each { File file ->        // 遍历文件树的所有文件
             println(file)
