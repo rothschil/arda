@@ -1,7 +1,12 @@
 archivesBaseName = 'persistence-jpa'
 jar.enabled = true
 dependencies {
-    api project(':pippin-common:common-utils')
-    api 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.0'
+    api(project(':pippin-common:common-utils'))
+    api("org.springframework.boot:spring-boot-starter-data-jpa:$SpringBootVersion"){
+        exclude group:'net.bytebuddy', module: 'byte-buddy'
+        exclude group:'org.slf4j', module: 'slf4j-api'
+        exclude group:'org.glassfish.jaxb', module: 'jaxb-runtime'
+        exclude group:'org.jboss.logging', module: 'jboss-logging'
+    }
     api group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
 }

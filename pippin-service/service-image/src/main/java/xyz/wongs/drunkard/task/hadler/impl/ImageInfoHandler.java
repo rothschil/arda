@@ -1,6 +1,5 @@
 package xyz.wongs.drunkard.task.hadler.impl;
 
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.wongs.drunkard.moon.entity.ImageInfo;
@@ -16,8 +15,7 @@ import java.util.List;
  * @date 2021/9/17 - 15:41
  * @version 1.0.0
  */
-@Data
-@Component("imageInfoHandler")
+@Component
 public class ImageInfoHandler implements IntfImageInfoHandler {
 
     private List<ImageInfo> lists;
@@ -25,7 +23,12 @@ public class ImageInfoHandler implements IntfImageInfoHandler {
     @Autowired
     private ImageInfoService imageInfoService;
 
+    @Override
     public void processData(){
         imageInfoService.insert(lists);
+    }
+
+    public void setLists(List<ImageInfo> lists) {
+        this.lists = lists;
     }
 }

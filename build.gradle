@@ -5,6 +5,7 @@ plugins {
 }
 apply plugin: 'io.spring.dependency-management'
 
+
 version project_version
 group project_group
 
@@ -25,6 +26,7 @@ bootJar {
 
 // 只针对子目录进行生效
 subprojects {
+
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
@@ -61,6 +63,13 @@ subprojects {
         annotationProcessor('org.projectlombok:lombok:1.18.20')
         testImplementation('org.projectlombok:lombok:1.18.20')
         testAnnotationProcessor('org.projectlombok:lombok:1.18.20')
+        testImplementation("org.springframework.boot:spring-boot-starter-test:$SpringBootVersion"){
+            exclude group:'org.junit.vintage',module:'junit-vintage-engine'
+            exclude group:'org.junit.jupiter',module:'junit-jupiter-api'
+            exclude group:'net.minidev',module:'json-smart'
+            exclude group:'net.bytebuddy',module:'byte-buddy'
+            exclude group:'net.bytebuddy',module:'byte-buddy-agent'
+        }
         api('org.projectlombok:lombok:1.18.20')
     }
 

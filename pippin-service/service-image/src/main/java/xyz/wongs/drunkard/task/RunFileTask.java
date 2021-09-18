@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import xyz.wongs.drunkard.base.utils.file.FileUtil;
 import xyz.wongs.drunkard.base.utils.thread.ThreadPoolUtils;
 import xyz.wongs.drunkard.moon.entity.ImageInfo;
-import xyz.wongs.drunkard.moon.service.ImageInfoService;
 import xyz.wongs.drunkard.task.hadler.impl.ImageInfoHandler;
 import xyz.wongs.drunkard.task.queue.ImageInfoQueue;
 import xyz.wongs.drunkard.task.thread.FileSizeThread;
@@ -31,9 +30,6 @@ public class RunFileTask {
     public static final String THREAD_NAME ="RUN_FILE_NAME";
 
     @Autowired
-    public ImageInfoService imageInfoService;
-
-    @Autowired
     private ImageInfoQueue imageInfoQueue;
 
     @Autowired
@@ -52,6 +48,7 @@ public class RunFileTask {
     }
 
     public void listFiles(File file){
+
         File[] files = file.listFiles();
         List<ImageInfo> lists = new ArrayList<ImageInfo>();
         for (File fl : files) {

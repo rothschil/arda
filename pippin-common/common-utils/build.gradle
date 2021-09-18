@@ -7,33 +7,74 @@ jar.enabled = true
 dependencies {
 
     api(
-            libraries.'hibernate-validator',
             libraries.'commons-compress',
-            libraries.'commons-text',
-            libraries.'commons-fileupload',
+
             libraries.'commons-io',
             libraries.'commons-lang3',
             libraries.'commons-codec',
             libraries.'commons-configuration',
-            libraries.'druid-spring-boot-starter',
+
             libraries.'mysql-connector-java',
-            libraries.'spring-boot-starter-web',
-            libraries.'validation-api',
+
+//            libraries.'validation-api',
             libraries.'javax.servlet-api',
             libraries.'fastjson',
             libraries.'guava',
             libraries.'javax-annotation',
-            libraries.'spring-boot-starter-aop',
+
             libraries.'hutool-all'
     )
+
+    api(libraries.'commons-text'){
+        exclude group:'org.apache.commons', module: 'commons-lang3'
+    }
+
+    api(libraries.'spring-boot-starter-aop'){
+        exclude group:'org.slf4j', module: 'slf4j-api'
+        exclude group:"org.springframework.boot", module: 'spring-boot-starter-logging'
+    }
+
+    api(libraries.'spring-boot-starter-thymeleaf'){
+        exclude group:'org.thymeleaf', module: 'thymeleaf'
+        exclude group:'org.slf4j', module: 'slf4j-api'
+        exclude group:"org.springframework.boot", module: 'spring-boot-starter-logging'
+    }
+
+    api(libraries.'thymeleaf'){
+        exclude group:'org.slf4j', module: 'slf4j-api'
+    }
+
+    api(libraries.'spring-boot-starter-logging'){
+        exclude group:'*', module: '*'
+    }
+
+    api(libraries.'spring-boot-starter-web'){
+        exclude group:'org.slf4j', module: 'slf4j-api'
+    }
+
+    api(libraries.'druid-spring-boot-starter'){
+        exclude group:'org.slf4j', module: 'slf4j-api'
+        exclude group:'org.springframework.boot', module: 'spring-boot-autoconfigure'
+    }
+
+    api(libraries.'commons-fileupload'){
+        exclude group:'commons-io', module: 'commons-io'
+    }
+
+    api(libraries.'hibernate-validator'){
+        exclude group:'org.jboss.logging', module: 'jboss-logging'
+        exclude group:'com.fasterxml', module: 'classmate'
+    }
+
     compileOnly(libraries.'spring-tx')
 
     api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
     api group: 'org.hyperic', name: 'sigar', version: '1.6.4'
 
-    api 'com.h2database:h2:1.4.200'
+//    api 'com.h2database:h2:1.4.200'
     api(libraries.'commons-httpclient'){
         exclude group:'commons-logging', module: 'commons-logging'
+        exclude group:'commons-codec', module: 'commons-codec'
     }
 
 
