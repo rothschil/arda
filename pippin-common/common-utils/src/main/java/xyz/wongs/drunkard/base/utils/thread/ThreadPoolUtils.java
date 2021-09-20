@@ -1,6 +1,6 @@
 package xyz.wongs.drunkard.base.utils.thread;
 
-import javax.validation.constraints.NotNull;
+
 import java.util.concurrent.*;
 
 /**
@@ -23,7 +23,7 @@ public class ThreadPoolUtils {
      * @throws
      * @date 20/11/19 16:23
      */
-    public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize,@NotNull String theadName){
+    public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize, String theadName){
         return doCreate(corePoolSize, maximumPoolSize,0,theadName);
     }
 
@@ -38,8 +38,8 @@ public class ThreadPoolUtils {
      * @date 20/11/19 16:23
      */
     public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize,
-                                                     @NotNull int queueSize,
-                                                     @NotNull String theadName){
+                                                      int queueSize,
+                                                      String theadName){
         return doCreate(corePoolSize, maximumPoolSize,0, TimeUnit.SECONDS, queueSize,theadName);
     }
 
@@ -56,8 +56,8 @@ public class ThreadPoolUtils {
      * @date 20/11/19 16:23
      */
     public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize,int keepAliveTime,TimeUnit unit,
-                                                     @NotNull int queueSize,
-                                                     @NotNull String theadName){
+                                                      int queueSize,
+                                                      String theadName){
         // 1、指定有界队列，并明确大小
         queueSize= queueSize==0?8:queueSize;
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(queueSize);
@@ -83,8 +83,8 @@ public class ThreadPoolUtils {
      * @date 20/11/19 16:23
      */
     public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize,int keepAliveTime,TimeUnit unit,
-                                              @NotNull BlockingQueue<Runnable> workQueue,
-                                              @NotNull String theadName){
+                                               BlockingQueue<Runnable> workQueue,
+                                               String theadName){
         // 初始化大小
         int poolSize = getCorePoolSize(corePoolSize);
         // 2、自定义线程名字
@@ -131,21 +131,21 @@ public class ThreadPoolUtils {
      * @date 20/11/19 16:23
      */
     public static ThreadPoolExecutor doCreate(int corePoolSize,int maximumPoolSize,int keepAliveTime,TimeUnit unit,
-            @NotNull BlockingQueue<Runnable> workQueue,
-            @NotNull ThreadFactory threadFactory,
-            @NotNull RejectedExecutionHandler handler){
+             BlockingQueue<Runnable> workQueue,
+             ThreadFactory threadFactory,
+             RejectedExecutionHandler handler){
         // 初始化大小
         int poolSize = getCorePoolSize(corePoolSize);
         return new ThreadPoolExecutor(poolSize, maximumPoolSize,keepAliveTime, unit, workQueue,threadFactory, handler);
     }
 
 
-    public static ScheduledExecutorService doCreate(@NotNull int corePoolSize,@NotNull String theadName){
+    public static ScheduledExecutorService doCreate( int corePoolSize, String theadName){
         ThreadFactory threadFactory = new PippinThreadFactory(theadName);
         return doCreate(corePoolSize,threadFactory);
     }
 
-    public static ScheduledExecutorService doCreate(@NotNull int corePoolSize, ThreadFactory threadFactory){
+    public static ScheduledExecutorService doCreate( int corePoolSize, ThreadFactory threadFactory){
         return new ScheduledThreadPoolExecutor (corePoolSize,threadFactory,getRejectedExecutionHandler());
     }
 

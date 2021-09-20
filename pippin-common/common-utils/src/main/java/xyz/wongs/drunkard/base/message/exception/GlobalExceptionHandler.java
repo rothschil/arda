@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import xyz.wongs.drunkard.base.message.enums.ResultCode;
 import xyz.wongs.drunkard.base.message.response.ErrorResult;
 
-import javax.validation.ConstraintViolationException;
 
 /**
  * @author WCNGS@QQ.COM
@@ -25,19 +24,19 @@ import javax.validation.ConstraintViolationException;
 public class GlobalExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /**
-     * @return ErrorResult
-     * @Author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @Description 参数校验不通过
-     * @Date 2021/7/8-10:18
-     * @Param ex
-     **/
-    @ExceptionHandler(value = ConstraintViolationException.class)
-    @ResponseBody
-    public ErrorResult handleConstraintViolationException(ConstraintViolationException ex) {
-        LOG.error("ConstraintViolationException msg:{}", ex.getMessage());
-        return ErrorResult.fail(ResultCode.PARAMS_IS_INVALID, ex);
-    }
+//    /**
+//     * @return ErrorResult
+//     * @Author <a href="mailto:WCNGS@QQ.COM">Sam</a>
+//     * @Description 参数校验不通过
+//     * @Date 2021/7/8-10:18
+//     * @Param ex
+//     **/
+//    @ExceptionHandler(value = ConstraintViolationException.class)
+//    @ResponseBody
+//    public ErrorResult handleConstraintViolationException(ConstraintViolationException ex) {
+//        LOG.error("ConstraintViolationException msg:{}", ex.getMessage());
+//        return ErrorResult.fail(ResultCode.PARAMS_IS_INVALID, ex);
+//    }
 
     /**
      * @return ErrorResult

@@ -50,6 +50,7 @@ dependencies {
 
     api(libraries.'spring-boot-starter-web'){
         exclude group:'org.slf4j', module: 'slf4j-api'
+//        exclude group:'org.hibernate.validator', module: 'hibernate-validator'
     }
 
     api(libraries.'druid-spring-boot-starter'){
@@ -61,10 +62,10 @@ dependencies {
         exclude group:'commons-io', module: 'commons-io'
     }
 
-    api(libraries.'hibernate-validator'){
-        exclude group:'org.jboss.logging', module: 'jboss-logging'
-        exclude group:'com.fasterxml', module: 'classmate'
-    }
+//    api(libraries.'hibernate-validator'){
+//        exclude group:'org.jboss.logging', module: 'jboss-logging'
+//        exclude group:'com.fasterxml', module: 'classmate'
+//    }
 
     compileOnly(libraries.'spring-tx')
 
