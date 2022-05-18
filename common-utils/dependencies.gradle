@@ -16,6 +16,7 @@ ext.versions = [
         druidSpringBootStarterVersion:'1.2.3',
         mySqlVersion:'8.0.25',
         oracleVersion:'11.2.0.3',
+        postgresqlVersion:'11.2.0.3',
         // END Data Base Version
         commonsHttpclientVersion:'3.1',
         fastjsonVersion:'1.2.78',
