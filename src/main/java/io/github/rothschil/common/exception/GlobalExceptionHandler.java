@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
      **/
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    public Result globalException(HttpServletRequest request, HandlerMethod handlerMethod,Exception ex) {
+    public Result<?> globalException(HttpServletRequest request, HandlerMethod handlerMethod,Exception ex) {
         String urlStr = request.getRequestURI().replaceAll(".*//([^//]*:{0,1}[0-9])", "");
         String params = "";
         LOG.error("[URI]:\n{}\n[params]:\n{}\n[exception]:{}", urlStr, params, ex.getMessage());
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
      **/
     @ExceptionHandler(NullPointerException.class)
     @ResponseBody
-    public Result nullPointerException(HttpServletRequest request, NullPointerException ex) {
+    public Result<?> nullPointerException(HttpServletRequest request, NullPointerException ex) {
         String urlStr = request.getRequestURI().replaceAll(".*//([^//]*:{0,1}[0-9])", "");
         String params = "";
         LOG.error("[URI]:\n{}\n[params]:\n{}\n[exception]:{}", urlStr, params, ex.getMessage());
@@ -74,14 +74,14 @@ public class GlobalExceptionHandler {
      **/
     @ExceptionHandler(CommonException.class)
     @ResponseBody
-    public Result handleWeathertopException(CommonException ex) {
+    public Result<?> handleWeathertopException(CommonException ex) {
         LOG.error("code:{},msg:{}", ex.getStatus(), ex.getMessage());
         return Result.fail(ex.getStatus(), ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({HttpMessageNotReadableException.class})
-    public Result handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    public Result<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         LOG.error("参数解析失败", e);
         return Result.fail(Status.API_PARAM_EXCEPTION, new CommonException("请求入参无法被解析或者序列化"));
     }
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
      * @author <a href="https://github.com/rothschil">Sam</a>
      **/
     @ExceptionHandler(BindException.class)
-    public Result handleBindException(BindException e) {
+    public Result<List<String>> handleBindException(BindException e) {
         LOG.error("发生参数校验异常！原因是：", e);
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         List<String> collect = fieldErrors.stream()
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result handleMethodArgumentNotValidException(HttpServletRequest request,MethodArgumentNotValidException e) {
+    public Result<List<String>> handleMethodArgumentNotValidException(HttpServletRequest request,MethodArgumentNotValidException e) {
         LOG.error("发生参数校验异常！原因是 ", e);
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         List<String> collect = fieldErrors.stream()
