@@ -101,12 +101,15 @@ dependencies {
 	//sftp jsch
 	implementation group: 'com.jcraft', name: 'jsch', version: '0.1.55'
 	implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
+//	testImplementation "org.springframework.boot:spring-boot-starter-test"
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+	implementation 'javax.xml.soap:javax.xml.soap-api:1.4.0'
 }
 
-test {
-	useJUnitPlatform()
-}
+//test {
+//	useJUnitPlatform()
+//}
 
 jar {
 	// 禁用档案后缀，处理 **-plain.jar
