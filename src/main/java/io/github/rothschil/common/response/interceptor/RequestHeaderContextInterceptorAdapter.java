@@ -4,13 +4,12 @@ import io.github.rothschil.common.base.vo.RequestHeaderVo;
 import io.github.rothschil.common.constant.Constant;
 import io.github.rothschil.common.utils.IpUtil;
 import io.github.rothschil.common.utils.UserTransmittableUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 对请求进行统一处理
@@ -19,12 +18,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 @Slf4j
-public class RequestHeaderContextInterceptorAdapter extends HandlerInterceptorAdapter {
+public class RequestHeaderContextInterceptorAdapter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         initHeaderContext(request);
-        return super.preHandle(request, response, handler);
+        return HandlerInterceptor.super.preHandle(request,response,handler);
     }
 
     /**
@@ -41,6 +40,5 @@ public class RequestHeaderContextInterceptorAdapter extends HandlerInterceptorAd
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         UserTransmittableUtils.clear();
-        super.postHandle(request, response, handler, modelAndView);
-    }
+        HandlerInterceptor.super.postHandle(request,response,handler,modelAndView);    }
 }

@@ -57,7 +57,7 @@ public class RestUtils {
     public static RestTemplate getRestTemplate(Integer timeout) {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setConnectTimeout(timeout);
-        requestFactory.setReadTimeout(timeout);
+        // requestFactory.setReadTimeout(timeout);
         return new RestTemplate(requestFactory);
     }
 
@@ -655,7 +655,7 @@ public class RestUtils {
             }
         } catch (HttpStatusCodeException exception) {
             int statusCode = exception.getStatusCode().value();
-            errMsg="HttpStatusCodeException "+statusCode+"="+exception.getStatusCode().getReasonPhrase();
+            errMsg="HttpStatusCodeException "+statusCode+"="+exception.getStatusCode();
             // log.error("[HttpStatusCodeException exception] err\t{} [Intf Name]\t{}\t[Intf Desc]\t{}\n[Intf Url]\n{}\n[Requeset Body]\n{}\n", exception.getStatusCode().getReasonPhrase(),intfConf.getInterfaceName(),intfConf.getRemark(),address,json);
         } catch (Exception e) {
             errMsg="Exception "+TextUtil.exToStr(e);

@@ -63,6 +63,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation "org.springframework.security:spring-security-core"
 	compileOnly 'org.projectlombok:lombok'
+	implementation "jakarta.servlet:jakarta.servlet-api"
+	implementation "jakarta.annotation:jakarta.annotation-api"
 	implementation "org.projectlombok:lombok:$lombokVersion"
 	implementation "org.springframework.boot:spring-boot-starter-validation"
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -85,8 +87,8 @@ dependencies {
 //	implementation('com.baomidou:mybatis-plus-boot-starter:3.5.2'){
 //		exclude(group:'mysql', module:'mysql-connector-java')
 //	}
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.1'
-	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:2.3.1'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:2.3.0'
 	// https://mvnrepository.com/artifact/org.postgresql/postgresql
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.4'
 
@@ -103,8 +105,15 @@ dependencies {
 	implementation group: 'com.jcraft', name: 'jsch', version: '0.1.55'
 	implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
 //	testImplementation "org.springframework.boot:spring-boot-starter-test"
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+	testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+	testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+	testImplementation("org.junit.platform:junit-platform-runner:1.5.1")
+	testRuntimeOnly("org.junit.platform:junit-platform-runner:1.5.1")
+
 	implementation 'javax.xml.soap:javax.xml.soap-api:1.4.0'
 }
 

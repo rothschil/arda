@@ -10,15 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 */
 public class PippinThreadFactory implements ThreadFactory {
 
-    private final ThreadGroup threadGroup;
-
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     public  final String namePrefix;
 
     public PippinThreadFactory(String name){
-        SecurityManager s = System.getSecurityManager();
-        threadGroup = (s != null) ? s.getThreadGroup() :
-                Thread.currentThread().getThreadGroup();
         if (null==name || "".equals(name.trim())){
             name = "pool";
         }
@@ -30,7 +25,7 @@ public class PippinThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(threadGroup, r,
+        Thread t = new Thread(new ThreadGroup("Thread"), r,
                 namePrefix + threadNumber.getAndIncrement(),
                 0);
         if (t.isDaemon()) {

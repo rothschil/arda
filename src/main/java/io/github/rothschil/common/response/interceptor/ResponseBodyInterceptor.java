@@ -10,11 +10,11 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * 定义统一响应内容的拦截器，为内容进行设置 {@link Constants } RESPONSE_RESULT_ANN，可以识别和兼容 方法 和 类的 Annotation 注解
+ * 定义统一响应内容的拦截器，为内容进行设置 {@link Constant } RESPONSE_RESULT_ANN，可以识别和兼容 方法 和 类的 Annotation 注解
  * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
  * @version 1.0.0
  */
