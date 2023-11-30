@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Intf implements Serializable {
+public class IntfEntity implements Serializable {
 
     private String callee;
 
