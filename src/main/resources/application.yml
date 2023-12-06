@@ -1,8 +1,11 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   application:
     name: rothschil-common
 
+rothschil:
+  cache:
+    prefix: rothschil
 logging:
   config: classpath:logback-spring.xml
