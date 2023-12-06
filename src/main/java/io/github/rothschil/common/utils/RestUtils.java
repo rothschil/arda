@@ -9,7 +9,6 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import io.github.rothschil.common.base.dto.RestBean;
-import io.github.rothschil.common.base.vo.BaseReq;
 import io.github.rothschil.common.base.vo.BaseResp;
 import io.github.rothschil.common.base.vo.RequestHeaderVo;
 import io.github.rothschil.common.constant.Constant;
@@ -19,117 +18,105 @@ import io.github.rothschil.common.intf.IntfConfEntity;
 import io.github.rothschil.common.intf.IntfConfService;
 import io.github.rothschil.common.queue.AppLogQueue;
 import io.github.rothschil.common.response.enums.Status;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import javax.xml.soap.SOAPBodyElement;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 构建远程 RPC 访问的工具类，对 HTTP GET/POST 以及 SOAP 的封装
+ * 构建远程 RPC 访问的工具类，基于RestTemplate对 HTTP GET/POST 以及 SOAP 的封装。<br/>
+ * 在Spring 5.2后，采用Spring官方推荐 {@link HttpClient}
  * @author HeD
  * @author  <a href="mailto:WCNGS@QQ.COM">Sam</a>
  */
 @Slf4j
-public class RestUtils {
+public class RestUtils<T extends BaseResp> {
 
     private static AppLogQueue APPLOG_QUEUE = null;
 
     private static IntfConfService itfConfService= null;
 
     /**
-     * 配置工厂
+     * 配置 HttpClient 实例
      * @param timeout 超时时间
      * @return  RestTemplate
      */
-    public static RestTemplate getRestTemplate(Integer timeout) {
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(timeout);
-        // requestFactory.setReadTimeout(timeout);
-        return new RestTemplate(requestFactory);
+    public static WebClient getWebClient(Integer timeout) {
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
+                .responseTimeout(Duration.ofMillis(timeout))
+                .doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(timeout)));
+        return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
     /** 根据请求实例获取响应
      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfCode    接口编码
-     * @param req   入参实例
-     * @param baseRespClass 响应实例的类型
+     * @param intfCode    接口信息
+     * @param json 响应实例的类型
+     * @param headers 根据具体业务动态添加请求Header
+     * @param responseClass 响应类
      * @return T
      **/
-    public static <T extends BaseResp> T post(String intfCode, BaseReq req, Class<T> baseRespClass) {
+    public static <T> T post(String intfCode, String json, HttpHeaders headers,Class<T> responseClass) {
         IntfConfEntity intfConf = getIntfConf(intfCode);
-        return post(intfConf,req,baseRespClass);
+        if (null == intfConf) {
+            throw new CommonException(Status.TARGET_NOT_EXIST,"[IntfConf] 查询失败,接口未配置 intfCode:"+intfCode);
+        }
+        return  exchange(intfConf,json,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.POST);
+    }
+
+    public static <T> T postXml(IntfConfEntity intfConf, String xmlContent, HttpHeaders headers,Class<T> responseClass) {
+        return exchange(intfConf,xmlContent,headers,responseClass,MediaType.APPLICATION_XML,HttpMethod.POST);
     }
 
     /** 根据请求实例获取响应
      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
      * @param intfConf    接口信息
-     * @param req   入参实例
-     * @param baseRespClass 响应实例的类型
-     * @return T
+     * @param params   入参实例
+     * @param headers 头信息
+     * @param responseClass 响应类
+     * @return RestBean
      **/
-    public static <T extends BaseResp> T post(IntfConfEntity intfConf, BaseReq req, Class<T> baseRespClass) {
-        return post(intfConf,req,baseRespClass,new HttpHeaders());
-    }
-
-
-    /** 根据请求实例获取响应
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfCode    接口信息
-     * @param req   入参实例
-     * @param baseRespClass 响应实例的类型
-     * @param appendHttpHeaders 根据具体业务动态添加请求Header
-     * @return T
-     **/
-    public static <T extends BaseResp> T post(String intfCode,BaseReq req, Class<T> baseRespClass,HttpHeaders appendHttpHeaders) {
-        IntfConfEntity intfConf = getIntfConf(intfCode);
-        RestBean restBean = RestUtils.post(intfConf, JSON.toJSONString(req), appendHttpHeaders);
-        if (restBean.getCode() != HttpStatus.OK.value()) {
-            throw new CommonException(Status.FAILURE.getStatus(),baseRespClass.getSimpleName());
+    public static <T> T get(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<T> responseClass) {
+        AtomicReference<String> stringAtomicReference = new AtomicReference<>("");
+        if(ObjectUtil.isNotEmpty(params)){
+            params.forEach((k, v) -> stringAtomicReference.set(stringAtomicReference + "&" + k + "=" + v));
+            String uri = stringAtomicReference.get();
+            if (uri.startsWith("&")) {
+                uri = uri.substring(1);
+                uri = "?" + uri;
+            }
+            intfConf.setAddress(uri);
         }
-        String respJson = restBean.getResp();
-        return com.alibaba.fastjson.JSONObject.parseObject(respJson, baseRespClass);
+        return exchange(intfConf,null,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.GET);
     }
 
     /** 根据请求实例获取响应
      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfConfEntity    接口信息
-     * @param req   入参实例
-     * @param baseRespClass 响应实例的类型
-     * @param appendHttpHeaders 根据具体业务动态添加请求Header
+     * @param intfConf    接口信息
+     * @param json 响应实例的类型
+     * @param headers 根据具体业务动态添加请求Header
+     * @param responseClass 响应类
      * @return T
      **/
-    public static <T extends BaseResp> T post(IntfConfEntity intfConfEntity,BaseReq req, Class<T> baseRespClass,HttpHeaders appendHttpHeaders) {
-        RestBean restBean = RestUtils.post(intfConfEntity, JSON.toJSONString(req), appendHttpHeaders);
-        if (restBean.getCode() != HttpStatus.OK.value()) {
-            throw new CommonException(Status.FAILURE.getStatus(),baseRespClass.getSimpleName());
-        }
-        String respJson = restBean.getResp();
-        return com.alibaba.fastjson.JSONObject.parseObject(respJson, baseRespClass);
-    }
-
-    public static RestBean post(String serviceName, String json, HttpHeaders httpHeaders) {
-        IntfConfEntity intfConf = getIntfConf(serviceName);
-        if (null == intfConf) {
-            throw new CommonException(Status.TARGET_NOT_EXIST,"intfConf查询失败,接口未配置 serviceName:"+serviceName);
-        }
-        return post(intfConf, json, httpHeaders);
-    }
-
-    public static RestBean post(IntfConfEntity intfConf, String json, HttpHeaders httpHeaders) {
-        boolean enabled = false;//getLogSwitchClosed();
+    public static <T> T exchange(IntfConfEntity intfConf, String json, HttpHeaders headers,Class<T> responseClass,MediaType mediaType,HttpMethod httpMethod) {
+        boolean enabled = false;
         IntfLog intfLog = null;
         if(enabled){
             intfLog = postBuildIntfLog(intfConf,json);
@@ -138,29 +125,7 @@ public class RestUtils {
         //请求头
         String address = intfConf.getAddress();
         long start = System.currentTimeMillis();
-        RestTemplate restTemplate = getRestTemplate(timeout);
-        //返回乱码处理
-        restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-        ResponseEntity<String> exchange = exchange(restTemplate, httpHeaders, address, HttpMethod.POST, json, intfConf);
-        RestBean restBean = getRestBean(exchange);
-        if(enabled){
-            afterBuildIntfLog(intfLog,restBean,start);
-        }
-        return restBean;
-    }
-
-    public static RestBean postXml(IntfConfEntity intfConf, String xmlContent, HttpHeaders httpHeaders) {
-        boolean enabled = false; //getLogSwitchClosed();
-        IntfLog intfLog = null;
-        if(enabled){
-            intfLog = postBuildIntfLog(intfConf, xmlContent);
-        }
-        int timeout = getTimeOut(intfConf);
-        //请求头
-        String address = intfConf.getAddress();
-        long start = System.currentTimeMillis();
-        RestTemplate restTemplate = getRestTemplate(timeout);
-        intfConf.getHeaderInfo();
+        WebClient client = getWebClient(timeout);
         // 解析 intfConf.getHeaderInfo() 添加xppid和xappkey
         String headerInfo = intfConf.getHeaderInfo();
         if (StringUtils.isNotBlank(headerInfo)) {
@@ -168,21 +133,18 @@ public class RestUtils {
             if (jsonObject.size() > 0) {
                 jsonObject.forEach((k, v) -> {
                     v = ObjectUtil.isEmpty(v) ? "" : v;
-                    httpHeaders.set(k, (String) v);
+                    headers.set(k, (String) v);
                 });
             }
         }
-        // 设置内容类型为XML
-        httpHeaders.setContentType(MediaType.APPLICATION_XML);
-        HttpEntity<String> requestEntity = new HttpEntity<>(xmlContent, httpHeaders);
-        ResponseEntity<String> exchange = restTemplate.exchange(address, HttpMethod.POST, requestEntity, String.class);
 
-        RestBean restBean = getRestBean(exchange);
-        if(enabled){
-            afterBuildIntfLog(intfLog, restBean, start);
+        if(httpMethod.equals(HttpMethod.POST)){
+            return  client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).bodyValue(json).retrieve().bodyToMono(responseClass).block();
         }
-        return restBean;
+        return  client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).retrieve().bodyToMono(responseClass).block();
     }
+
+
 
     /** 构建超时时间，如果没有配置，则启用 5 秒
      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
@@ -195,86 +157,6 @@ public class RestUtils {
             timeCout = 2500;
         }
         return timeCout;
-    }
-
-
-    /** 根据请求实例获取响应
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param serviceName    接口编码
-     * @param params   入参实例
-     * @param headerInfo 头信息
-     * @return RestBean
-     **/
-    public static RestBean get(String serviceName, Map params, HttpHeaders headerInfo) {
-        IntfConfEntity intfConf = getIntfConf(serviceName);
-        if (null == intfConf) {
-            throw new CommonException(Status.TARGET_NOT_EXIST,"intfConf查询失败,接口未配置 serviceName:"+serviceName);
-        }
-        AtomicReference<String> stringAtomicReference = new AtomicReference<>("");
-        params.forEach((k, v) -> stringAtomicReference.set(stringAtomicReference + "&" + k + "=" + v));
-        String uri = stringAtomicReference.get();
-        if (uri.startsWith("&")) {
-            uri = uri.substring(1);
-            uri = "?" + uri;
-        }
-        return get(intfConf, uri, headerInfo);
-    }
-
-    /** 根据请求实例获取响应
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfConf    接口信息
-     * @param params   入参实例
-     * @param headerInfo 头信息
-     * @return RestBean
-     **/
-    public static RestBean get(IntfConfEntity intfConf, Map params, HttpHeaders headerInfo) {
-        AtomicReference<String> stringAtomicReference = new AtomicReference<>("");
-        params.forEach((k, v) -> stringAtomicReference.set(stringAtomicReference + "&" + k + "=" + v));
-        String uri = stringAtomicReference.get();
-        if (uri.startsWith("&")) {
-            uri = uri.substring(1);
-            uri = "?" + uri;
-        }
-        return get(intfConf, uri, headerInfo);
-    }
-
-    /** 根据请求实例获取响应
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfConfEntity    接口信息
-     * @param params   入参实例
-     * @param baseRespClass 响应实例的类型
-     * @return T
-     **/
-    public static <T extends BaseResp> T get(IntfConfEntity intfConfEntity,Map<String,Object> params, Class<T> baseRespClass) {
-        RestBean restBean = get(intfConfEntity, params, new HttpHeaders());
-        if (restBean.getCode() != HttpStatus.OK.value()) {
-            throw new CommonException(Status.FAILURE.getStatus(), baseRespClass.getSimpleName());
-        }
-        String respJson = restBean.getResp();
-        return com.alibaba.fastjson.JSONObject.parseObject(respJson, baseRespClass);
-    }
-
-    public static RestBean postSpecialHeader(String serviceName, Map map, HttpHeaders headerInfo) {
-        IntfConfEntity intfConf = getIntfConf(serviceName);
-        if (null == intfConf) {
-            throw new CommonException(Status.TARGET_NOT_EXIST,"intfConf查询失败,接口未配置 serviceName:"+serviceName);
-        }
-        AtomicReference<String> stringAtomicReference = new AtomicReference<>("");
-        map.forEach((k, v) -> stringAtomicReference.set(stringAtomicReference + "&" + k + "=" + v));
-        String uri = stringAtomicReference.get();
-        if (uri.startsWith("&")) {
-            uri = uri.substring(1);
-            uri = "?" + uri;
-        }
-        return post(intfConf, uri, headerInfo);
-    }
-
-    public static RestBean get(IntfConfEntity intfConf, String uri, HttpHeaders header) {
-        String address = intfConf.getAddress() + uri;
-        int timeout = getTimeOut(intfConf);
-        RestTemplate restTemplate = getRestTemplate(timeout);
-        ResponseEntity<String> exchange = exchange(restTemplate, header, address, HttpMethod.GET, "", intfConf);
-        return getRestBean(exchange);
     }
 
     private static RestBean getRestBean(ResponseEntity<String> exchange) {
@@ -608,6 +490,7 @@ public class RestUtils {
     /** 底层接口实现
      * @author <a href="https://github.com/rothschil">Sam</a>
      * @param restTemplate  {@link RestTemplate}
+     * @param isAsync   是否异步
      * @param httpHeaders   头信息
      * @param address   地址
      * @param method    方法类型
@@ -615,7 +498,7 @@ public class RestUtils {
      * @param intfConf  接口实例
      * @return String>
      **/
-    private static ResponseEntity<String> exchange(RestTemplate restTemplate, HttpHeaders httpHeaders, String address,
+    private static ResponseEntity<String> exchange(RestTemplate restTemplate, boolean isAsync, HttpHeaders httpHeaders, String address,
                                                    HttpMethod method, String json, IntfConfEntity intfConf) {
 
         ResponseEntity<String> exchange = null;
@@ -685,14 +568,17 @@ public class RestUtils {
         log.warn("{}.CallId\n[IntfName]\n{}\n[IntfDesc]\n{}\n[IntfUrl]\n{}\n[RequesetBody]\n{}\n[ResponseBody]\n{}\n[CostTime]\n{}ms\n",transId, intfConf.getInterfaceName(), intfConf.getRemark(), address, json, body, procTime);
     }
 
-    public static IntfConfEntity getIntfConf(String serviceName) {
+    public static IntfConfEntity getIntfConf(String intfCode) {
         if (null == itfConfService) {
             synchronized ("itfConfService_class") {
                 itfConfService = SpringUtil.getBean(IntfConfService.class);
             }
         }
-         return itfConfService.getIntf(serviceName);
-//        return null;
+        IntfConfEntity intfConf = itfConfService.getIntf(intfCode);
+        if (null == intfConf) {
+            throw new CommonException(Status.TARGET_NOT_EXIST,"[IntfConf] 查询失败,接口未配置 intfCode:"+intfCode);
+        }
+        return intfConf;
     }
 
 

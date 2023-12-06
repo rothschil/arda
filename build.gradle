@@ -115,6 +115,8 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-runner:1.5.1")
 
 	implementation 'javax.xml.soap:javax.xml.soap-api:1.4.0'
+	// Http Clinet
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 test {
