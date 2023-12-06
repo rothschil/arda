@@ -19,6 +19,8 @@ import io.github.rothschil.common.intf.IntfConfService;
 import io.github.rothschil.common.queue.AppLogQueue;
 import io.github.rothschil.common.response.enums.Status;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ConnectTimeoutException;
+import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +28,12 @@ import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.Disposable;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import javax.xml.soap.SOAPBodyElement;
@@ -37,6 +44,8 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -73,16 +82,16 @@ public class RestUtils<T extends BaseResp> {
      * @param responseClass 响应类
      * @return T
      **/
-    public static <T> T post(String intfCode, String json, HttpHeaders headers,Class<T> responseClass) {
+    public static Mono<?> post(String intfCode, String json, HttpHeaders headers,Class responseClass,boolean isAsync) {
         IntfConfEntity intfConf = getIntfConf(intfCode);
         if (null == intfConf) {
             throw new CommonException(Status.TARGET_NOT_EXIST,"[IntfConf] 查询失败,接口未配置 intfCode:"+intfCode);
         }
-        return  exchange(intfConf,json,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.POST);
+        return  exchange(intfConf,json,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.POST,true);
     }
 
-    public static <T> T postXml(IntfConfEntity intfConf, String xmlContent, HttpHeaders headers,Class<T> responseClass) {
-        return exchange(intfConf,xmlContent,headers,responseClass,MediaType.APPLICATION_XML,HttpMethod.POST);
+    public static Mono<?> postXml(IntfConfEntity intfConf, String xmlContent, HttpHeaders headers,Class<?> responseClass) {
+        return exchange(intfConf,xmlContent,headers,responseClass,MediaType.APPLICATION_XML,HttpMethod.POST,true);
     }
 
     /** 根据请求实例获取响应
@@ -93,9 +102,89 @@ public class RestUtils<T extends BaseResp> {
      * @param responseClass 响应类
      * @return RestBean
      **/
-    public static <T> T get(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<T> responseClass) {
+    public static <T extends BaseResp> T getBySynch(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<T> responseClass) {
+        Mono<?> mono = get(intfConf,params,headers,responseClass);
+        return (T)mono.block();
+    }
+
+    /** 根据请求实例获取响应
+     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
+     * @param intfConf    接口信息
+     * @param params   入参实例
+     * @param headers 头信息
+     * @param responseClass 响应类
+     * @return RestBean
+     **/
+    public static Disposable getByAsynch(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<?> responseClass) {
+        Mono<?> mono = get(intfConf,params,headers,responseClass);
+        return mono.subscribe(RestUtils::handleResponse, RestUtils::handleResponseErr);
+    }
+
+    private static void handleResponse(Object o) {
+        log.warn("SUCCESS {}",o);
+        try {
+            TimeUnit.SECONDS.sleep(2L);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void handleResponseErr(Throwable error) {
+        // handle the error
+        log.error("An error occurred: {}", error.getMessage());
+        log.error("error class: {}", error.getClass());
+        // Errors / Exceptions from Server
+        if (error instanceof WebClientResponseException webClientResponseException) {
+            int statusCode = webClientResponseException.getStatusCode().value();
+            String statusText = webClientResponseException.getStatusText();
+            log.info("Error status code: {}", statusCode);
+            log.info("Error status text: {}", statusText);
+            if (statusCode >= 400 && statusCode < 500) {
+                log.info("Error Response body {}", webClientResponseException.getResponseBodyAsString());
+            }
+            Throwable cause = webClientResponseException.getCause();
+            log.error("webClientResponseException");
+            if (null != cause) {
+                log.info("Cause {}", cause.getClass());
+                if (cause instanceof ReadTimeoutException) {
+                    log.error("ReadTimeout Exception");
+                }
+                if (cause instanceof TimeoutException) {
+                    log.error("Timeout Exception");
+                }
+            }
+        }
+
+        // Client errors i.e. Timeouts etc -
+        if (error instanceof WebClientRequestException) {
+            log.error("webClientRequestException");
+            WebClientRequestException webClientRequestException =
+                    (WebClientRequestException) error;
+            Throwable cause = webClientRequestException.getCause();
+            if (null != cause) {
+                log.info("Cause {}", cause.getClass());
+                if (cause instanceof ReadTimeoutException) {
+                    log.error("ReadTimeout Exception");
+                }
+                if (cause instanceof ConnectTimeoutException) {
+                    log.error("Connect Timeout Exception");
+                }
+            }
+        }
+    }
+
+
+    /** 根据请求实例获取响应
+     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
+     * @param intfConf    接口信息
+     * @param params   入参实例
+     * @param headers 头信息
+     * @param responseClass 响应类
+     * @return RestBean
+     **/
+    public static Mono<?> get(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<?> responseClass) {
         AtomicReference<String> stringAtomicReference = new AtomicReference<>("");
-        if(ObjectUtil.isNotEmpty(params)){
+        if(ObjectUtil.isNotEmpty(params)) {
             params.forEach((k, v) -> stringAtomicReference.set(stringAtomicReference + "&" + k + "=" + v));
             String uri = stringAtomicReference.get();
             if (uri.startsWith("&")) {
@@ -104,7 +193,7 @@ public class RestUtils<T extends BaseResp> {
             }
             intfConf.setAddress(uri);
         }
-        return exchange(intfConf,null,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.GET);
+        return exchange(intfConf,null,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.GET,true);
     }
 
     /** 根据请求实例获取响应
@@ -113,9 +202,10 @@ public class RestUtils<T extends BaseResp> {
      * @param json 响应实例的类型
      * @param headers 根据具体业务动态添加请求Header
      * @param responseClass 响应类
+     * @param isAsync 是否异步操作，使用 Mono中的阻塞
      * @return T
      **/
-    public static <T> T exchange(IntfConfEntity intfConf, String json, HttpHeaders headers,Class<T> responseClass,MediaType mediaType,HttpMethod httpMethod) {
+    public static Mono<?> exchange(IntfConfEntity intfConf, String json, HttpHeaders headers, Class<?> responseClass, MediaType mediaType, HttpMethod httpMethod,boolean isAsync) {
         boolean enabled = false;
         IntfLog intfLog = null;
         if(enabled){
@@ -137,11 +227,16 @@ public class RestUtils<T extends BaseResp> {
                 });
             }
         }
-
+        Mono<?> non;
         if(httpMethod.equals(HttpMethod.POST)){
-            return  client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).bodyValue(json).retrieve().bodyToMono(responseClass).block();
+            non = client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).body(BodyInserters.fromValue(json)).retrieve().bodyToMono(responseClass);
+        }else{
+            non= client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).retrieve().bodyToMono(responseClass);
         }
-        return  client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).retrieve().bodyToMono(responseClass).block();
+
+
+
+        return non;
     }
 
 

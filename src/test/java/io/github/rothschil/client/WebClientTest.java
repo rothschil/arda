@@ -1,11 +1,13 @@
 package io.github.rothschil.client;
 
-import cn.hutool.json.JSONUtil;
 import io.github.rothschil.common.intf.IntfConfEntity;
 import io.github.rothschil.common.utils.RestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import reactor.core.Disposable;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WebClientTest {
@@ -13,9 +15,14 @@ public class WebClientTest {
 
     @Test
     public void wea() {
-        String url = "http://t.weather.itboy.net/api/weather/city/101030100";
+        String url = "http://t.weather.itboy.netf/api/weather/city/101030100";
         IntfConfEntity intfConf = IntfTools.building(url);
-        RespCase resp= RestUtils.get(intfConf,null,new HttpHeaders(),RespCase.class);
-        log.warn("RespCase {}", JSONUtil.parse(resp));
+        // RespCase resp= RestUtils.getBySynch(intfConf,null,new HttpHeaders(),RespCase.class);
+        Disposable disposable = RestUtils.getByAsynch(intfConf,null,new HttpHeaders(),RespCase.class);
+        try {
+            TimeUnit.SECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
