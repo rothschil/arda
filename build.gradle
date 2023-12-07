@@ -89,15 +89,17 @@ dependencies {
 //	}
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
-	// https://mvnrepository.com/artifact/org.postgresql/postgresql
+	// BEGIIN DB
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.4'
+//	implementation("org.redisson:redisson-spring-boot-starter:3.25.0")
+	// END DB
 
 	implementation group: 'p6spy', name: 'p6spy', version: '3.9.1'
 	implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 	//JSON
 	implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.83'
 	implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
-	implementation("org.redisson:redisson-spring-boot-starter:3.25.0")
+
 	implementation("com.github.ben-manes.caffeine:caffeine")
 	//日志转换
 	implementation group: 'uk.org.lidalia', name: 'sysout-over-slf4j', version: '1.0.2'
