@@ -91,4 +91,18 @@ public interface Constant {
      * IP网卡信息，备用环境
      */
     String IPADDRESS_SLAVE = "70";
+
+    String BASIC_TYPE_INTEGER = "Integer";
+    String BASIC_TYPE_BIG_DECIMAL = "BigDecimal";
+    String BASIC_TYPE_LONG = "Long";
+    String BASIC_TYPE_DATE = "Date";
+    String BASIC_TYPE_INT = "int";
+
+    /**
+     *  下划线
+     */
+    String UNDERSCORE = "_";
+
+    String DB_TYPE ="db.type";
+    String RANDOM_STR="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 }

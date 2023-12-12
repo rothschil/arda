@@ -39,7 +39,7 @@ public class VersionCommit {
         try {
             Map<String, String> map = fromFile();
             if(null != map){
-                logger.info("start up successfully with version-commit: \r\n {}", map);
+                logger.info("Startup Successfully With version-commit: \r\n {}", map);
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

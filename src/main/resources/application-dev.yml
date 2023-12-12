@@ -15,7 +15,7 @@ spring:
         codec: !<org.redisson.codec.FstCodec> {}
         transportMode: "NIO
   datasource:
-    username: admin
-    password: 12345678
+    username: postgres
+    password: password
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.88.130:5432/postgres?useUnicode=true&characterEncoding=utf8
+    url: jdbc:postgresql://192.168.88.130:15433/postgres?useUnicode=true&characterEncoding=utf8

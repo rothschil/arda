@@ -1,7 +1,7 @@
 package io.github.rothschil.mapper;
 
-import io.github.rothschil.domain.entity.IntfEntity;
-import io.github.rothschil.domain.mapper.IntfMapper;
+import io.github.rothschil.domain.mybatis.entity.IntfEntity;
+import io.github.rothschil.domain.mybatis.mapper.IntfMapper;
 import org.junit.jupiter.api.*;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;

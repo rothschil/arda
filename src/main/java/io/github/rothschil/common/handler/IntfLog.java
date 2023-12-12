@@ -1,7 +1,7 @@
 package io.github.rothschil.common.handler;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.github.rothschil.common.base.entity.BaseEntity;
+import io.github.rothschil.common.base.entity.BasePo;
 import lombok.*;
 
 import java.util.Date;
@@ -16,8 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class IntfLog extends BaseEntity {
-    private static final long serialVersionUID = 1L;
+public class IntfLog extends BasePo<Long> {
 
     /**
      * 主键

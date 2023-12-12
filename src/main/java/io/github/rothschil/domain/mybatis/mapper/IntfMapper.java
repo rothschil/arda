@@ -1,6 +1,6 @@
-package io.github.rothschil.domain.mapper;
+package io.github.rothschil.domain.mybatis.mapper;
 
-import io.github.rothschil.domain.entity.IntfEntity;
+import io.github.rothschil.domain.mybatis.entity.IntfEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

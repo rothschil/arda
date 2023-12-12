@@ -1,6 +1,9 @@
 package io.github.rothschil.common.base.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.github.rothschil.common.config.Global;
+import io.github.rothschil.common.constant.Constant;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -8,13 +11,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Entity基类
- *
- * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
- * @version 1.0.0
+ * @author WCNGS@QQ.COM
+ * @Description
+ * @Github <a>https://github.com/rothschil</a>
+ * @date 2020/8/2 13:32
+ * @Version 1.0.0
  */
-public class BaseEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public abstract class BasePo<ID extends Serializable> extends RootEntity<ID> {
+
+    /**
+     * 数据库类型
+     * */
+    @JSONField(serialize = false)
+    private String dbType;
 
     /**
      * 搜索值
@@ -22,15 +31,15 @@ public class BaseEntity implements Serializable {
     private String searchValue;
 
     /**
-     * 创建者
-     */
-    private String createBy;
-
-    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    /**
+     * 创建者
+     */
+    private String createBy;
 
     /**
      * 更新者
@@ -53,6 +62,25 @@ public class BaseEntity implements Serializable {
      */
     private Map<String, Object> params;
 
+    public String getDbType() {
+        return Global.getConfig(Constant.DB_TYPE);
+    }
+
+    public Map<String, Object> getParams() {
+        if (params == null) {
+            params = new HashMap<>(6);
+        }
+        return params;
+    }
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+
+    public void setDbType(String dbType) {
+        this.dbType = dbType;
+    }
+
     public String getSearchValue() {
         return searchValue;
     }
@@ -61,20 +89,20 @@ public class BaseEntity implements Serializable {
         this.searchValue = searchValue;
     }
 
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
     public Date getCreateTime() {
         return createTime;
     }
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
     }
 
     public String getUpdateBy() {
@@ -99,16 +127,5 @@ public class BaseEntity implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
-    }
-
-    public Map<String, Object> getParams() {
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        return params;
-    }
-
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 }

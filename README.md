@@ -108,11 +108,11 @@ mybatis:
 
 #### 4.1.3. 实体Bean
 
-`Bean` 定义我们只需要继承 `io.github.rothschil.common.po.BasePo`， 为我们将来使用框架提供了方便，关于是否是用 `lombok` 来对代码进行简化，这块不强制要求。
+`Bean` 定义我们只需要继承 `io.github.rothschil.common.base.entity.BasePo`， 为我们将来使用框架提供了方便，关于是否是用 `lombok` 来对代码进行简化，这块不强制要求。
 
 ~~~java
 
-import io.github.rothschil.common.po.BasePo;
+import io.github.rothschil.common.base.entity.BasePo;
 import lombok.*;
 
 @EqualsAndHashCode(callSuper=false)
