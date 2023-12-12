@@ -1,7 +1,6 @@
 package io.github.rothschil.common.utils;
 
 import cn.hutool.core.util.RandomUtil;
-import io.github.rothschil.common.config.cache.annotation.Cacheable;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -15,19 +14,19 @@ import java.util.regex.Pattern;
 public class ToolUtils {
 
 
-    /**
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param cacheable 实例
-     * @return String
-     **/
-    public static String buildContent(Cacheable cacheable) {
-        String content = cacheable.value();
-        String pattern = "\\w+\\.\\w+";
-        if(ToolUtils.operation(content, pattern)){
-            return "{#"+content+"}";
-        }
-        return content;
-    }
+    // /**
+    //  * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
+    //  * @param cacheable 实例
+    //  * @return String
+    //  **/
+    // public static String buildContent(Cacheable cacheable) {
+    //     String content = cacheable.value();
+    //     String pattern = "\\w+\\.\\w+";
+    //     if(ToolUtils.operation(content, pattern)){
+    //         return "{#"+content+"}";
+    //     }
+    //     return content;
+    // }
 
     public static int getTTL(int ttl) {
         if(ttl>1){

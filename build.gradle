@@ -87,9 +87,10 @@ dependencies {
 //	implementation('com.baomidou:mybatis-plus-boot-starter:3.5.2'){
 //		exclude(group:'mysql', module:'mysql-connector-java')
 //	}
+
+	// BEGIIN DB
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
-	// BEGIIN DB
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.4'
 //	implementation("org.redisson:redisson-spring-boot-starter:3.25.0")
 	// END DB
