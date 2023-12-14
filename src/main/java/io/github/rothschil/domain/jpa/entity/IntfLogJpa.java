@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(name = "intf_log")
-public class IntfLog extends AbstractPo<Long> {
+public class IntfLogJpa extends AbstractPo<Long> {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -29,10 +29,10 @@ public class IntfLog extends AbstractPo<Long> {
     @Column(name = "callee")
     private String callee;
 
-    public IntfLog() {
+    public IntfLogJpa() {
     }
 
-    public IntfLog(String caller, String callee) {
+    public IntfLogJpa(String caller, String callee) {
         this.caller = caller;
         this.callee = callee;
     }

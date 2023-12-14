@@ -1,4 +1,4 @@
-package io.github.rothschil.common.intf;
+package io.github.rothschil.domain.mybatis.entity;
 
 // import com.baomidou.mybatisplus.annotations.TableField;
 // import com.baomidou.mybatisplus.annotations.TableId;

@@ -4,15 +4,13 @@ import com.alibaba.ttl.threadpool.TtlExecutors;
 import io.github.rothschil.common.utils.thread.CustomThreadPoolTaskExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.scheduling.annotation.EnableAsync;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -22,12 +20,13 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
  * @version 1.0.0
  */
+@EnableAsync
 @Slf4j
 public class AsyncExecutorConfig implements AsyncConfigurer {
 
 
     private static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
-    private static final int MAX_POOL_SIZE = CORE_POOL_SIZE * 4 < 256 ? 256 : CORE_POOL_SIZE * 4;
+    private static final int MAX_POOL_SIZE = Math.max(CORE_POOL_SIZE * 4, 256);
     // 允许线程空闲时间（单位为秒）
     private static final int KEEP_ALIVE_TIME = 10;
     // 缓冲队列数
@@ -41,6 +40,7 @@ public class AsyncExecutorConfig implements AsyncConfigurer {
 
 
     @Bean("ttlExecutor")
+    @ConditionalOnMissingBean(Executor.class)
     @Override
     public Executor getAsyncExecutor() {
         CustomThreadPoolTaskExecutor executor = new CustomThreadPoolTaskExecutor();
@@ -61,33 +61,14 @@ public class AsyncExecutorConfig implements AsyncConfigurer {
     /**
      * 异常处理器
      *
-     * @param
      * @return AsyncUncaughtExceptionHandler
      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
      **/
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        // AsyncConfigurer.super.getAsyncUncaughtExceptionHandler();
         return (throwable, method, objs) -> log.error("[Throwable] {} [Exception method] {} [Args] {}", throwable.getMessage(),method.getName(),objs);
     }
 
-
-    static class ContextCopyingDecorator implements TaskDecorator {
-        @Nonnull
-        @Override
-        public Runnable decorate(@Nonnull Runnable runnable) {
-            RequestAttributes context = RequestContextHolder.currentRequestAttributes();
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            return () -> {
-                try {
-                    RequestContextHolder.setRequestAttributes(context);
-                    SecurityContextHolder.setContext(securityContext);
-                    runnable.run();
-                } finally {
-                    SecurityContextHolder.clearContext();
-                    RequestContextHolder.resetRequestAttributes();
-                }
-            };
-        }
-    }
 
 }

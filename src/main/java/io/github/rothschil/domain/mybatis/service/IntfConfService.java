@@ -1,8 +1,9 @@
-package io.github.rothschil.common.intf;
+package io.github.rothschil.domain.mybatis.service;
 
 import cn.hutool.core.util.ObjectUtil;
 import io.github.rothschil.common.constant.Constant;
 import io.github.rothschil.common.exception.CommonException;
+import io.github.rothschil.domain.mybatis.entity.IntfConfEntity;
 import io.github.rothschil.common.response.enums.Status;
 import io.github.rothschil.common.utils.NativeUtil;
 import lombok.extern.slf4j.Slf4j;

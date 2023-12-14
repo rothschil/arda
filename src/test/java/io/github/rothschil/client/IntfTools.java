@@ -1,7 +1,7 @@
 package io.github.rothschil.client;
 
 
-import io.github.rothschil.common.intf.IntfConfEntity;
+import io.github.rothschil.domain.mybatis.entity.IntfConfEntity;
 
 public class IntfTools {
 

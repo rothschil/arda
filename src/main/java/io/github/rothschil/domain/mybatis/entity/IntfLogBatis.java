@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class IntfEntity extends BasePo<Long> {
+public class IntfLogBatis extends BasePo<Long> {
 
     private Long id;
 

@@ -1,7 +1,7 @@
 package io.github.rothschil.domain.jpa.service;
 
 import io.github.rothschil.common.persistence.jpa.service.BaseService;
-import io.github.rothschil.domain.jpa.entity.IntfLog;
+import io.github.rothschil.domain.jpa.entity.IntfLogJpa;
 import io.github.rothschil.domain.jpa.repository.IntfLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Transactional
 @Service
-public class IntfLogJpaService extends BaseService<IntfLog, Long> {
+public class IntfLogJpaService extends BaseService<IntfLogJpa, Long> {
 
 
     private IntfLogRepository intfLogRepository;
@@ -26,7 +26,7 @@ public class IntfLogJpaService extends BaseService<IntfLog, Long> {
     @Autowired
     @Qualifier("intfLogRepository")
     @Override
-    public void setJpaRepository(JpaRepository<IntfLog, Long> jpaRepository) {
+    public void setJpaRepository(JpaRepository<IntfLogJpa, Long> jpaRepository) {
         this.jpaRepository = jpaRepository;
         this.intfLogRepository = (IntfLogRepository) jpaRepository;
     }
@@ -37,7 +37,7 @@ public class IntfLogJpaService extends BaseService<IntfLog, Long> {
     }
 
 
-    public IntfLog getIntfLogByCaller(String caller) {
+    public IntfLogJpa getIntfLogByCaller(String caller) {
         return intfLogRepository.getIntfLogByCaller(caller);
     }
 

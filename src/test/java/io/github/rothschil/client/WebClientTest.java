@@ -1,6 +1,6 @@
 package io.github.rothschil.client;
 
-import io.github.rothschil.common.intf.IntfConfEntity;
+import io.github.rothschil.domain.mybatis.entity.IntfConfEntity;
 import io.github.rothschil.common.utils.RestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

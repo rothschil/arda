@@ -2,7 +2,7 @@ package io.github.rothschil.domain.jpa.repository;
 
 
 import io.github.rothschil.common.persistence.jpa.repository.BaseRepository;
-import io.github.rothschil.domain.jpa.entity.IntfLog;
+import io.github.rothschil.domain.jpa.entity.IntfLogJpa;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.List;
  * @date 2021/10/15 - 16:41
  * @since 1.0.0
  */
-public interface IntfLogRepository extends BaseRepository<IntfLog, Long> {
+public interface IntfLogRepository extends BaseRepository<IntfLogJpa, Long> {
 
-    IntfLog getIntfLogByCaller(String caller);
+    IntfLogJpa getIntfLogByCaller(String caller);
 
-    List<IntfLog> findIntfLogByCallerIsLike(@Param("caller") String caller);
+    List<IntfLogJpa> findIntfLogByCallerIsLike(@Param("caller") String caller);
 }
