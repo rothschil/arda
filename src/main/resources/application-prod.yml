@@ -9,3 +9,10 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://192.168.88.130:15433/postgres
+common:
+  sqlite:
+    url: jdbc:sqlite:E:/Repertory/Sqlite/tbl_cdma_hlr
+    tablename: tbl_cdma_hlr
+    driver-class-name: org.sqlite.JDBC
+    username:
+    password:

@@ -23,3 +23,10 @@ rothschil:
     prefix: rothschil
 logging:
   config: classpath:logback-spring.xml
+common:
+  sqlite:
+    url: jdbc:sqlite:E:/Repertory/Sqlite/tbl_cdma_hlr
+    tablename: tbl_cdma_hlr
+    driver-class-name: org.sqlite.JDBC
+    username:
+    password:
