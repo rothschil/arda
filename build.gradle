@@ -101,6 +101,7 @@ dependencies {
 
 	implementation 'javax.xml.soap:javax.xml.soap-api:1.4.0'
 
+	implementation 'com.lmax:disruptor:3.4.4'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
