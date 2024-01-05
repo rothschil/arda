@@ -15,9 +15,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 mybatis:
-  mapper:
-    #locations: classpath:com/bj/springboot/mapper/*.xml
-    locations: classpath:/mapper/*.xml
+  mapper-locations: classpath:mapper/**/*Mapper.xml
+  type-aliases-package: io.github.rothschil.**.mybatis.entity
+  configuration:
+    map-underscore-to-camel-case: true
 rothschil:
   cache:
     prefix: rothschil

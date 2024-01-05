@@ -14,10 +14,10 @@ import io.github.rothschil.common.base.vo.RequestHeaderVo;
 import io.github.rothschil.common.constant.Constant;
 import io.github.rothschil.common.exception.CommonException;
 import io.github.rothschil.common.handler.IntfLog;
-import io.github.rothschil.domain.mybatis.entity.IntfConfEntity;
-import io.github.rothschil.domain.mybatis.service.IntfConfService;
 import io.github.rothschil.common.queue.AppLogQueue;
 import io.github.rothschil.common.response.enums.Status;
+import io.github.rothschil.domain.mybatis.entity.IntfConfEntity;
+import io.github.rothschil.domain.mybatis.service.IntfConfService;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
@@ -72,6 +72,21 @@ public class RestUtils<T extends BaseResp> {
                 .responseTimeout(Duration.ofMillis(timeout))
                 .doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(timeout)));
         return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+    }
+
+    /** 根据请求实例获取响应
+     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
+     * @param intfConf    接口信息
+     * @param json 响应实例的类型
+     * @param headers 根据具体业务动态添加请求Header
+     * @param responseClass 响应类
+     * @return T
+     **/
+    public static Mono<?> post(IntfConfEntity intfConf, String json, HttpHeaders headers,Class responseClass) {
+        if (null == intfConf) {
+            throw new CommonException(Status.TARGET_NOT_EXIST,"[IntfConf] 查询失败,接口未配置 intfCode:");
+        }
+        return  exchange(intfConf,json,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.POST,true);
     }
 
     /** 根据请求实例获取响应
@@ -233,9 +248,6 @@ public class RestUtils<T extends BaseResp> {
         }else{
             non= client.method(httpMethod).uri(address).headers(httpHeaders -> httpHeaders.addAll(headers)).accept(MediaType.ALL).contentType(mediaType).retrieve().bodyToMono(responseClass);
         }
-
-
-
         return non;
     }
 
@@ -252,18 +264,6 @@ public class RestUtils<T extends BaseResp> {
             timeCout = 2500;
         }
         return timeCout;
-    }
-
-    private static RestBean getRestBean(ResponseEntity<String> exchange) {
-        RestBean restBean = new RestBean();
-        if (exchange == null) {
-            restBean.setCode(500);
-            restBean.setResp("对外请求异常");
-        } else {
-            restBean.setCode(exchange.getStatusCodeValue());
-            restBean.setResp(exchange.getBody());
-        }
-        return restBean;
     }
 
     /**
