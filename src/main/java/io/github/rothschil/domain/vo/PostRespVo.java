@@ -1,8 +1,12 @@
 package io.github.rothschil.domain.vo;
 
-import java.io.Serializable;
+import io.github.rothschil.common.base.vo.BaseResp;
 
-public class PostRespVo implements Serializable {
+/**
+ * @author <a href="https://github.com/rothschil">Sam</a>
+ * @since 1.0.0
+ */
+public class PostRespVo extends BaseResp {
 
     private String uuid;
 

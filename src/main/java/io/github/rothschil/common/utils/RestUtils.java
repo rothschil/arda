@@ -8,12 +8,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import io.github.rothschil.common.base.dto.RestBean;
 import io.github.rothschil.common.base.vo.BaseResp;
 import io.github.rothschil.common.base.vo.RequestHeaderVo;
 import io.github.rothschil.common.constant.Constant;
 import io.github.rothschil.common.exception.CommonException;
-import io.github.rothschil.common.handler.IntfLog;
 import io.github.rothschil.common.queue.AppLogQueue;
 import io.github.rothschil.common.response.enums.Status;
 import io.github.rothschil.domain.mybatis.entity.IntfConfEntity;
@@ -41,7 +39,6 @@ import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import java.nio.charset.Charset;
 import java.time.Duration;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +52,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author  <a href="mailto:WCNGS@QQ.COM">Sam</a>
  */
 @Slf4j
-public class RestUtils<T extends BaseResp> {
+public class RestUtils {
 
     private static AppLogQueue APPLOG_QUEUE = null;
 
@@ -82,7 +79,7 @@ public class RestUtils<T extends BaseResp> {
      * @param responseClass 响应类
      * @return T
      **/
-    public static Mono<?> post(IntfConfEntity intfConf, String json, HttpHeaders headers,Class responseClass) {
+    public static Mono<?> post(IntfConfEntity intfConf, String json, HttpHeaders headers,Class<? extends BaseResp> responseClass) {
         if (null == intfConf) {
             throw new CommonException(Status.TARGET_NOT_EXIST,"[IntfConf] 查询失败,接口未配置 intfCode:");
         }
@@ -97,7 +94,7 @@ public class RestUtils<T extends BaseResp> {
      * @param responseClass 响应类
      * @return T
      **/
-    public static Mono<?> post(String intfCode, String json, HttpHeaders headers,Class responseClass,boolean isAsync) {
+    public static Mono<?> post(String intfCode, String json, HttpHeaders headers,Class<? extends BaseResp> responseClass,boolean isAsync) {
         IntfConfEntity intfConf = getIntfConf(intfCode);
         if (null == intfConf) {
             throw new CommonException(Status.TARGET_NOT_EXIST,"[IntfConf] 查询失败,接口未配置 intfCode:"+intfCode);
@@ -105,7 +102,7 @@ public class RestUtils<T extends BaseResp> {
         return  exchange(intfConf,json,headers,responseClass,MediaType.APPLICATION_JSON,HttpMethod.POST,true);
     }
 
-    public static Mono<?> postXml(IntfConfEntity intfConf, String xmlContent, HttpHeaders headers,Class<?> responseClass) {
+    public static Mono<?> postXml(IntfConfEntity intfConf, String xmlContent, HttpHeaders headers,Class<? extends BaseResp> responseClass) {
         return exchange(intfConf,xmlContent,headers,responseClass,MediaType.APPLICATION_XML,HttpMethod.POST,true);
     }
 
@@ -130,7 +127,7 @@ public class RestUtils<T extends BaseResp> {
      * @param responseClass 响应类
      * @return RestBean
      **/
-    public static Disposable getByAsynch(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<?> responseClass) {
+    public static Disposable getByAsynch(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<? extends BaseResp> responseClass) {
         Mono<?> mono = get(intfConf,params,headers,responseClass);
         return mono.subscribe(RestUtils::handleResponse, RestUtils::handleResponseErr);
     }
@@ -170,11 +167,8 @@ public class RestUtils<T extends BaseResp> {
             }
         }
 
-        // Client errors i.e. Timeouts etc -
-        if (error instanceof WebClientRequestException) {
+        if (error instanceof WebClientRequestException webClientRequestException) {
             log.error("webClientRequestException");
-            WebClientRequestException webClientRequestException =
-                    (WebClientRequestException) error;
             Throwable cause = webClientRequestException.getCause();
             if (null != cause) {
                 log.info("Cause {}", cause.getClass());
@@ -197,7 +191,7 @@ public class RestUtils<T extends BaseResp> {
      * @param responseClass 响应类
      * @return RestBean
      **/
-    public static Mono<?> get(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<?> responseClass) {
+    public static Mono<?> get(IntfConfEntity intfConf, Map<String,Object> params, HttpHeaders headers,Class<? extends BaseResp> responseClass) {
         AtomicReference<String> stringAtomicReference = new AtomicReference<>("");
         if(ObjectUtil.isNotEmpty(params)) {
             params.forEach((k, v) -> stringAtomicReference.set(stringAtomicReference + "&" + k + "=" + v));
@@ -220,22 +214,16 @@ public class RestUtils<T extends BaseResp> {
      * @param isAsync 是否异步操作，使用 Mono中的阻塞
      * @return T
      **/
-    public static Mono<?> exchange(IntfConfEntity intfConf, String json, HttpHeaders headers, Class<?> responseClass, MediaType mediaType, HttpMethod httpMethod,boolean isAsync) {
-        boolean enabled = false;
-        IntfLog intfLog = null;
-        if(enabled){
-            intfLog = postBuildIntfLog(intfConf,json);
-        }
+    public static Mono<?> exchange(IntfConfEntity intfConf, String json, HttpHeaders headers, Class<? extends BaseResp> responseClass, MediaType mediaType, HttpMethod httpMethod,boolean isAsync) {
         int timeout = getTimeOut(intfConf);
         //请求头
         String address = intfConf.getAddress();
-        long start = System.currentTimeMillis();
         WebClient client = getWebClient(timeout);
         // 解析 intfConf.getHeaderInfo() 添加xppid和xappkey
         String headerInfo = intfConf.getHeaderInfo();
         if (StringUtils.isNotBlank(headerInfo)) {
             JSONObject jsonObject = JSONUtil.parseObj(headerInfo);
-            if (jsonObject.size() > 0) {
+            if (!jsonObject.isEmpty()) {
                 jsonObject.forEach((k, v) -> {
                     v = ObjectUtil.isEmpty(v) ? "" : v;
                     headers.set(k, (String) v);
@@ -264,77 +252,6 @@ public class RestUtils<T extends BaseResp> {
             timeCout = 2500;
         }
         return timeCout;
-    }
-
-    /**
-     * 日志交互后操作
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfConf   接口响应
-     * @param json  响应的JSON
-     **/
-    private static IntfLog postBuildIntfLog(IntfConfEntity intfConf, String json){
-        IntfLog entity = null;
-        entity = new IntfLog();
-        entity.setIntfCode(intfConf.getInterfaceName());
-        entity.setSource("IVR");
-        entity.setTarget(intfConf.getInterfaceName());
-        entity.setRemark(intfConf.getRemark());
-        entity.setReqData(json);
-        entity.setReqTime(new Date());
-        RequestHeaderVo ivrVo = (RequestHeaderVo)UserTransmittableUtils.get();
-        return entity;
-    }
-
-
-    /**
-     * 请求发生前
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfLog   交互日志实例
-     * @param restBean  响应Bean
-     * @param start 开始时间
-     **/
-    private static void afterBuildIntfLog(IntfLog intfLog, RestBean restBean, long start){
-        afterBuildIntfLog(intfLog,JSONUtil.toJsonStr(restBean.getResp()),start,restBean.getCode()+"");
-    }
-
-
-    /**
-     * 请求发生前
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfLog   交互日志实例
-     * @param restBean  响应Bean
-     * @param start 开始时间
-     **/
-    private static void afterBuildIntfLog(IntfLog intfLog, String restBean, long start){
-        afterBuildIntfLog(intfLog,restBean,start, Constant.NUM_1);
-    }
-
-
-    /**
-     * 请求发生前
-     * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-     * @param intfLog   交互日志实例
-     * @param restBean  响应Bean
-     * @param start 开始时间
-     * @param state 交互的状态
-     **/
-    private static void afterBuildIntfLog(IntfLog intfLog, String restBean, long start,String state){
-        if(ObjectUtil.isEmpty(intfLog)){
-            return ;
-        }
-        long end = System.currentTimeMillis();
-        intfLog.setProcTime(end-start);
-        intfLog.setRespTime(new Date());
-        intfLog.setState(state);
-        intfLog.setRespData(restBean);
-        // CompletableFuture.runAsync(()-> {
-        //     if (null == APPLOG_QUEUE) {
-        //         synchronized ("APPLOG_QUEUE_CLAZZ") {
-        //             SpringUtil.getBean(AppLogQueue.class);
-        //         }
-        //     }
-        //     APPLOG_QUEUE.addQueue(intfLog);
-        // });
     }
 
 
@@ -566,19 +483,8 @@ public class RestUtils<T extends BaseResp> {
 
 
         String xmlContent = JAXBUtil.beanToXml(req);
-        /*boolean enabled = getLogSwitchClosed();*/
-        boolean enabled = false;
-        IntfLog intfLog = null;
-        if(enabled){
-            intfLog = postBuildIntfLog(intfConfEntity,xmlContent);
-        }
-        long start = System.currentTimeMillis();
         SoapClient soapClient = post2Webservice(xmlContent,intfConfEntity,nameSpaceHeadersMap,mapMethod,mapMethodEle,childElement,mapSoapElement);
-        String soapResp = soapClient.send(false);
-        if(enabled){
-            afterBuildIntfLog(intfLog,soapResp,start);
-        }
-        return soapResp;
+        return soapClient.send(false);
     }
 
 
@@ -634,10 +540,8 @@ public class RestUtils<T extends BaseResp> {
         } catch (HttpStatusCodeException exception) {
             int statusCode = exception.getStatusCode().value();
             errMsg="HttpStatusCodeException "+statusCode+"="+exception.getStatusCode();
-            // log.error("[HttpStatusCodeException exception] err\t{} [Intf Name]\t{}\t[Intf Desc]\t{}\n[Intf Url]\n{}\n[Requeset Body]\n{}\n", exception.getStatusCode().getReasonPhrase(),intfConf.getInterfaceName(),intfConf.getRemark(),address,json);
         } catch (Exception e) {
             errMsg="Exception "+TextUtil.exToStr(e);
-            // log.error("[Request exception] err\t{} [Intf Name]\t{}\t[Intf Desc]\t{}\n[Intf Url]\n{}\n[Requeset Body]\n{}\n", TextUtil.exToStr(e),intfConf.getInterfaceName(),intfConf.getRemark(),address,json);
         } finally {
             long end = System.currentTimeMillis();
             body = null != exchange ? exchange.getBody() : errMsg;
