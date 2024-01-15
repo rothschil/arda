@@ -32,11 +32,11 @@ repositories {
 dependencies {
 	implementation('org.springframework.boot:spring-boot-starter')
 	implementation("org.springframework.boot:spring-boot-starter-web"){
-		exclude(group:'org.springframework.boot', module:'spring-boot-starter-tomcat')
+//		exclude(group:'org.springframework.boot', module:'spring-boot-starter-tomcat')
 	}
 
 
-	implementation 'org.springframework.boot:spring-boot-starter-undertow'
+//	implementation 'org.springframework.boot:spring-boot-starter-undertow'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation "org.springframework.security:spring-security-core"
 
@@ -103,17 +103,12 @@ dependencies {
 	testImplementation("org.junit.platform:junit-platform-runner:1.5.1")
 	testRuntimeOnly("org.junit.platform:junit-platform-runner:1.5.1")
 
+
 	implementation 'javax.xml.soap:javax.xml.soap-api:1.4.0'
 
 	implementation 'com.lmax:disruptor:3.4.4'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-	implementation('org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.0')
-	implementation('org.springframework.cloud:spring-cloud-starter-consul-discovery:4.1.0')
-/*
-	implementation('org.springframework.cloud:spring-cloud-starter-consul-config:4.1.0')
-*/
-	implementation('org.springframework.boot:spring-boot-starter-actuator')
 }
 
 test {

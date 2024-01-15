@@ -102,18 +102,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/favicon.ico");
     }
 
-    // /** 注册过滤器
-    //  * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-    //  * @return FilterRegistrationBean
-    //  **/
-    // @Bean
-    // public FilterRegistrationBean servletRegistrationBean() {
-    //     IvrHeaderFilter ivrHeaderFilter = new IvrHeaderFilter();
-    //     FilterRegistrationBean bean = new FilterRegistrationBean<>();
-    //     bean.setFilter(ivrHeaderFilter);
-    //     bean.setName("ivrHeaderFilter");
-    //     bean.addUrlPatterns("/*");
-    //     bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-    //     return bean;
-    // }
+     /** 注册过滤器
+      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
+      * @return FilterRegistrationBean
+      **/
+     @Bean
+     public FilterRegistrationBean servletRegistrationBean() {
+         IvrHeaderFilter ivrHeaderFilter = new IvrHeaderFilter();
+         FilterRegistrationBean bean = new FilterRegistrationBean<>();
+         bean.setFilter(ivrHeaderFilter);
+         bean.setName("ivrHeaderFilter");
+         bean.addUrlPatterns("/*");
+         bean.setOrder(Ordered.LOWEST_PRECEDENCE);
+         return bean;
+     }
 }
