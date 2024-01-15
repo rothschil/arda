@@ -89,6 +89,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(requestHeaderContextInterceptorAdapter).addPathPatterns("/**").excludePathPatterns("/webjars/**", "/static/**");
     }
 
+
     @Bean
     public LogInterceptor logInterceptor() {
         return new LogInterceptor();

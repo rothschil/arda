@@ -9,10 +9,16 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://192.168.88.130:15433/postgres
-common:
-  sqlite:
-    url: jdbc:sqlite:E:/Repertory/Sqlite/tbl_cdma_hlr
-    tablename: tbl_cdma_hlr
-    driver-class-name: org.sqlite.JDBC
-    username:
-    password:
+  cloud:
+    consul: #Consul服务注册发现配置
+      host: 192.168.88.130
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        deregister: true
+        prefer-ip-address: true
+        health-check-interval: 10s
+        health-check-critical-timeout: 30s
+        health-check-path: /health
+        service-name: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}
