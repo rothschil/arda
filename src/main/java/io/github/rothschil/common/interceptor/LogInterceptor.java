@@ -1,12 +1,15 @@
 package io.github.rothschil.common.interceptor;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -18,6 +21,31 @@ public class LogInterceptor implements HandlerInterceptor {
 
     private static final String TRACE_ID = "TRACE_ID";
 
+    /**
+     * 实现 TransmittableThreadLocal 的 initialValue,beforeExecute,afterExecute接口
+     */
+    static TransmittableThreadLocal<Map<String, String>> ttlMDC = new TransmittableThreadLocal<>() {
+        /**
+         * 在多线程数据传递的时候，将数据复制一份给MDC
+         */
+        @Override
+        protected void beforeExecute() {
+            final Map<String, String> mdc = get();
+            mdc.forEach(MDC::put);
+        }
+
+        @Override
+        protected void afterExecute() {
+            MDC.clear();
+        }
+
+        @Override
+        protected Map<String, String> initialValue() {
+            return Maps.newHashMap();
+        }
+    };
+
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String tid = UUID.randomUUID().toString().replace("-", "");
@@ -26,6 +54,7 @@ public class LogInterceptor implements HandlerInterceptor {
             tid=request.getHeader("TRACE_ID");
         }
         MDC.put(TRACE_ID, tid);
+        ttlMDC.get().put("traceId", tid);
         return true;
     }
 
@@ -33,5 +62,7 @@ public class LogInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
                                 @Nullable Exception ex) {
         MDC.remove(TRACE_ID);
+        ttlMDC.get().clear();
+        ttlMDC.remove();
     }
 }

@@ -1,15 +1,14 @@
 package io.github.rothschil.common.config;
 
 import com.alibaba.ttl.threadpool.TtlExecutors;
-import io.github.rothschil.common.utils.thread.CustomThreadPoolTaskExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -21,6 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @version 1.0.0
  */
 @EnableAsync
+@Configuration
 @Slf4j
 public class AsyncExecutorConfig implements AsyncConfigurer {
 
@@ -38,12 +38,32 @@ public class AsyncExecutorConfig implements AsyncConfigurer {
     // 线程池名前缀
     private static final String THREAD_NAME_PREFIX = "async-service-";
 
+//
+//    @Bean("ttlExecutor")
+//    @ConditionalOnMissingBean(Executor.class)
+//    @Override
+//    public Executor getAsyncExecutor() {
+//        CustomThreadPoolTaskExecutor executor = new CustomThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(CORE_POOL_SIZE);
+//        executor.setMaxPoolSize(MAX_POOL_SIZE);
+//        executor.setKeepAliveSeconds(KEEP_ALIVE_TIME);
+//        executor.setQueueCapacity(QUEUE_CAPACITY);
+//        executor.setThreadNamePrefix(THREAD_NAME_PREFIX);
+//        executor.setAwaitTerminationSeconds(AWAIT_TERMINATION);
+//        executor.setWaitForTasksToCompleteOnShutdown(WAIT_FOR_TASKS_TO_COMPLETE_ON_SHUTDOWN);
+//        // rejection-policy：当pool已经达到max size的时候，如何处理新任务
+//        // CALLER_RUNS：不在新线程中执行任务，而是有调用者所在的线程来执行
+//        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+//        executor.initialize();
+//        return TtlExecutors.getTtlExecutorService(executor.getThreadPoolExecutor());
+//    }
+
 
     @Bean("ttlExecutor")
     @ConditionalOnMissingBean(Executor.class)
     @Override
     public Executor getAsyncExecutor() {
-        CustomThreadPoolTaskExecutor executor = new CustomThreadPoolTaskExecutor();
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(CORE_POOL_SIZE);
         executor.setMaxPoolSize(MAX_POOL_SIZE);
         executor.setKeepAliveSeconds(KEEP_ALIVE_TIME);
@@ -55,7 +75,7 @@ public class AsyncExecutorConfig implements AsyncConfigurer {
         // CALLER_RUNS：不在新线程中执行任务，而是有调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
-        return TtlExecutors.getTtlExecutorService(executor.getThreadPoolExecutor());
+        return TtlExecutors.getTtlExecutor(executor);
     }
 
     /**
@@ -67,7 +87,7 @@ public class AsyncExecutorConfig implements AsyncConfigurer {
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         // AsyncConfigurer.super.getAsyncUncaughtExceptionHandler();
-        return (throwable, method, objs) -> log.error("[Throwable] {} [Exception method] {} [Args] {}", throwable.getMessage(),method.getName(),objs);
+        return (throwable, method, objs) -> log.error("[Throwable] {} [Exception method] {} [Args] {}", throwable.getMessage(), method.getName(), objs);
     }
 
 

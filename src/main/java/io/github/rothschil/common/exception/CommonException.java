@@ -1,6 +1,10 @@
 package io.github.rothschil.common.exception;
 
 import io.github.rothschil.common.response.enums.Status;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serial;
 
 /**
  * 属于自定义异常，使用过程中，需要注意构造函数 {@link Status} 中的定义，是否满足要求，不满足的话
@@ -8,13 +12,16 @@ import io.github.rothschil.common.response.enums.Status;
  * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
  * @version 1.0.0
  */
+@Setter
 public class CommonException extends RuntimeException {
 
+    @Serial
     private static final long serialVersionUID = -6370612186038915645L;
 
     /**
      * 错误码
      */
+    @Getter
     private int status;
 
     /**
@@ -122,20 +129,9 @@ public class CommonException extends RuntimeException {
         return this;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     @Override
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

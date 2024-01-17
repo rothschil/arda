@@ -5,6 +5,7 @@
     <!-- 日志文件的存放路径 -->
     <property name="LOG_HOME" value="./logs"/>
 
+
     <!-- 控制台输出 -->
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoder 默认配置为PatternLayoutEncoder -->
@@ -35,7 +36,7 @@
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-            <pattern>%d{HH:mm:ss.SSS} [%thread] [%boldYellow(%X{requestId})] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>[%X{TRACE_ID}] %d{HH:mm:ss.SSS} [%thread] [%boldYellow(%X{requestId})] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -56,7 +57,7 @@
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-            <pattern>%d{mm:ss.SSS} [%thread] [%boldYellow(%X{requestId})] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>[%X{TRACE_ID}] %d{mm:ss.SSS} [%thread] [%boldYellow(%X{requestId})] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

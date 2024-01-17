@@ -35,6 +35,10 @@ dependencies {
 //		exclude(group:'org.springframework.boot', module:'spring-boot-starter-tomcat')
 	}
 
+//	implementation 'com.alibaba:transmittable-thread-local:2.14.2'
+
+
+	implementation "com.alibaba:log4j2-ttl-thread-context-map:1.4.0"
 
 //	implementation 'org.springframework.boot:spring-boot-starter-undertow'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -60,7 +64,7 @@ dependencies {
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:2.1.1'
 	implementation 'cn.hutool:hutool-all:5.8.8'
 	// alibaba 线程池
-	implementation 'com.alibaba:transmittable-thread-local:2.14.2'
+
 
 	implementation 'com.github.pagehelper:pagehelper-spring-boot-starter:2.0.0'
 	// 持久化

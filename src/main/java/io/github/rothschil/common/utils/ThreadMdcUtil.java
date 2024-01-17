@@ -16,7 +16,7 @@ public class ThreadMdcUtil {
 
     // 获取唯一性标识
     public static String generateTraceId() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     public static void setTraceIdIfAbsent() {

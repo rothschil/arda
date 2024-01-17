@@ -13,10 +13,32 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class AsyncTask {
 
-    @Async("ttlExecutor")
+    @Async
     public void async(){
         RequestHeaderVo vo = (RequestHeaderVo) UserTransmittableUtils.get();
-        log.info("RequestHeaderVo {}", JSONUtil.parse(vo));
+        log.info("async {}", JSONUtil.parse(vo));
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Async
+    public void async2(){
+        RequestHeaderVo vo = (RequestHeaderVo) UserTransmittableUtils.get();
+        log.info("async2 {}", JSONUtil.parse(vo));
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Async
+    public void async3(){
+        RequestHeaderVo vo = (RequestHeaderVo) UserTransmittableUtils.get();
+        log.info("async3 {}", JSONUtil.parse(vo));
         try {
             TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {

@@ -12,7 +12,9 @@ import java.util.concurrent.Future;
  * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
  * @version 1.0.0
  */
-public class CustomThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
+public final class CustomThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
+
+
     public CustomThreadPoolTaskExecutor() {
         super();
     }

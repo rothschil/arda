@@ -24,7 +24,11 @@ public class IndexController {
     @RequestMapping("/index")
     public String index(){
         asyncTask.async();
+        asyncTask.async2();
+        asyncTask.async3();
+
         String uuid = UUID.randomUUID().toString();
+        log.warn("[Current Index]");
         return active+":->"+uuid;
     }
 

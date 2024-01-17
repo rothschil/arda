@@ -8,10 +8,8 @@ import io.github.rothschil.common.interceptor.LogInterceptor;
 import io.github.rothschil.common.response.interceptor.RequestHeaderContextInterceptorAdapter;
 import io.github.rothschil.common.response.interceptor.ResponseBodyInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -102,18 +100,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/favicon.ico");
     }
 
-     /** 注册过滤器
-      * @author <a href="mailto:WCNGS@QQ.COM">Sam</a>
-      * @return FilterRegistrationBean
-      **/
-     @Bean
-     public FilterRegistrationBean servletRegistrationBean() {
-         IvrHeaderFilter ivrHeaderFilter = new IvrHeaderFilter();
-         FilterRegistrationBean bean = new FilterRegistrationBean<>();
-         bean.setFilter(ivrHeaderFilter);
-         bean.setName("ivrHeaderFilter");
-         bean.addUrlPatterns("/*");
-         bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-         return bean;
-     }
+
 }
