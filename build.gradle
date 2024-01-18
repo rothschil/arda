@@ -32,10 +32,10 @@ repositories {
 dependencies {
 	implementation('org.springframework.boot:spring-boot-starter')
 	implementation("org.springframework.boot:spring-boot-starter-web"){
-//		exclude(group:'org.springframework.boot', module:'spring-boot-starter-tomcat')
+		exclude(group:'org.springframework.boot', module:'spring-boot-starter-tomcat')
 	}
 
-//	implementation 'com.alibaba:transmittable-thread-local:2.14.2'
+	implementation 'com.alibaba:transmittable-thread-local:2.14.2'
 
 
 	implementation "com.alibaba:log4j2-ttl-thread-context-map:1.4.0"

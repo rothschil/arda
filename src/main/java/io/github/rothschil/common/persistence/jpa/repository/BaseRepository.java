@@ -15,7 +15,7 @@ import java.util.List;
  * <p>抽象DAO层基类 提供一些简便方法<br/>
  * 想要使用该接口需要在spring配置文件的jpa:repositories中添加
  * <p/>
- * <p>泛型 ： M 表示实体类型；ID表示主键类型
+ * <p>泛型 ： T 表示实体类型；ID表示主键类型
  * @author <a href="https://github.com/rothschil">Sam</a>
  * @since 1.0.0
  */
@@ -42,10 +42,10 @@ public interface BaseRepository<T extends AbstractPo<ID>, ID extends Serializabl
      **/
     List<T> listByHql(String hql);
 
-    /** 以SQL方式，执行批量插入
+    /** 根据SQL，查询结果，获取结果列表
      * @author <a href="https://github.com/rothschil">Sam</a>
      * @param sql   原生SQL语句
-     * @return int
+     * @return Object
      **/
     Object getTarget(String sql);
 

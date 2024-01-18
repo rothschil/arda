@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 自定义实现的 Base Repository
  * @author <a href="https://github.com/rothschil">Sam</a>
  * @since 1.0.0
  */
@@ -139,7 +140,7 @@ public class BaseRepositoryImpl<T extends AbstractPo<ID>, ID extends Serializabl
         return 0;
     }
 
-    /** 利用Specification 默认设置进行分页
+    /** 利用Specification 默认设置进行分页，不想使用分页，可以使用 Pageable.unpaged()
      * @author <a href="https://github.com/rothschil">Sam</a>
      * @param spec  条件
      * @param pageable  分页信息
@@ -151,7 +152,7 @@ public class BaseRepositoryImpl<T extends AbstractPo<ID>, ID extends Serializabl
     }
 
     /**
-     * 利用实体结合 Specification 默认设置进行分页
+     * 利用实体结合 Specification 默认设置进行分页，不想使用分页，可以使用 Pageable.unpaged()
      * @author <a href="https://github.com/rothschil">Sam</a>
      * @param t 实体类
      * @param pageable  分页信息
@@ -164,7 +165,7 @@ public class BaseRepositoryImpl<T extends AbstractPo<ID>, ID extends Serializabl
     }
 
     /**
-     * 根据实体信息查询
+     * 根据实体信息查询，不想使用分页，可以使用 Pageable.unpaged()
      * @author <a href="https://github.com/rothschil">Sam</a>
      * @param t 非空
      * @param pageable  非空

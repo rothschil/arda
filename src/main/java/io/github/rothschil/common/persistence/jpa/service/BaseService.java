@@ -116,7 +116,7 @@ public abstract class BaseService<T extends AbstractPo<?>, ID extends Serializab
      * @return T   返回id对应的实体
      **/
     public T findOne(ID id) {
-        return jpaRepository.getOne(id);
+        return jpaRepository.getReferenceById(id);
     }
 
     /**

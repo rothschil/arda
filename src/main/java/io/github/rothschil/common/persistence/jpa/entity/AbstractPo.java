@@ -7,17 +7,14 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 
+
 /** 抽象实体基类，如果主键是数据库端自动生成 请使用{@link BasePo}
- * @Description
- * @author WCNGS@QQ.COM
- * @Github <a>https://github.com/rothschil</a>
- * @date 20/12/18 10:53
- * @Version 1.0.0
-*/
+ * @author <a href="https://github.com/rothschil">Sam</a>
+ * @since 1.0.0
+ */
 @MappedSuperclass
 public abstract class AbstractPo<ID extends Serializable> extends BasePo<ID> implements Persistable<ID> {
 
-	private static final long serialVersionUID = 1L;
 
 	@Override
 	public abstract ID getId();
