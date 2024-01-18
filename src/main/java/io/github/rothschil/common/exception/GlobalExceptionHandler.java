@@ -110,12 +110,6 @@ public class GlobalExceptionHandler {
         List<String> collect = fieldErrors.stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        // BindingResult bindingResult = e.getBindingResult();
-        // FieldError firstFieldError = CollectionUtil.getFirst(bindingResult.getFieldErrors());
-        // String exceptionStr = Optional.ofNullable(firstFieldError)
-        //         .map(FieldError::getDefaultMessage)
-        //         .orElse(StrUtil.EMPTY);
-        // LOG.error("[{}] {} [ex] {}", request.getMethod(),"URL:", exceptionStr);
         return Result.fail(Status.API_PARAM_EXCEPTION, collect);
     }
 }

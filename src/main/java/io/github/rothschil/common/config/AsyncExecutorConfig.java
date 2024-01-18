@@ -86,7 +86,7 @@ public class AsyncExecutorConfig implements AsyncConfigurer {
      **/
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        // AsyncConfigurer.super.getAsyncUncaughtExceptionHandler();
+
         return (throwable, method, objs) -> log.error("[Throwable] {} [Exception method] {} [Args] {}", throwable.getMessage(), method.getName(), objs);
     }
 
