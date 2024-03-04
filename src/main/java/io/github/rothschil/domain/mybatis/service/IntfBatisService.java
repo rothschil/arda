@@ -14,4 +14,5 @@ public class IntfBatisService {
     public IntfLogBatis findByCaller(String caller){
         return intfLogMapper.findByCaller(caller);
     }
+
 }

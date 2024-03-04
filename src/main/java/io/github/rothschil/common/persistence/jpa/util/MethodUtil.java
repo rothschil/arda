@@ -11,8 +11,8 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
-import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -23,35 +23,37 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author WCNGS@QQ.CO
- * @version V1.0
- * @date 2018/7/4 20:54
- **/
+ * @author <a href="https://github.com/rothschil">Sam</a>
+ * @since 1.0.0
+ */
 @Slf4j
-public class MethodUtil {
+public class MethodUtil<T extends AbstractPo<ID>, ID extends Serializable> {
 
-    public static Specification getSpecification(AbstractPo t){
-        return new Specification<AbstractPo>() {
-            @Override
-            public Predicate toPredicate(@Nullable Root<AbstractPo> root, @Nullable CriteriaQuery<?> query, @Nullable CriteriaBuilder cb) {
-                List<Predicate> list = MethodUtil.getFieldValue(t,root,cb);
-                Predicate[] pre = new Predicate[list.size()];
-                pre = list.toArray(pre);
-                assert query != null;
-                CriteriaQuery<?> quy = query.where(pre);
-                return quy.getRestriction();
-            }
+
+    /**
+     * @author <a href="https://github.com/rothschil">Sam</a>
+     * @param po
+     * @return Specification
+     **/
+    public static Specification getSpecification(AbstractPo po){
+        return (root, query, cb) -> {
+            List<Predicate> list = MethodUtil.getFieldValue(po,root,cb);
+            Predicate[] pre = new Predicate[list.size()];
+            pre = list.toArray(pre);
+            CriteriaQuery<?> quy = query.where(pre);
+            return quy.getRestriction();
         };
     }
 
     /**
-     * @Description
-     * @param entity 实体基类
-     * @param root root
+     * @author <a href="https://github.com/rothschil">Sam</a>
+     * @param entity    实体基类
+     * @param root  root
      * @param cb    CriteriaBuilder
-     * @date 20/12/18 10:12
-     */
+     * @return Predicate>
+     **/
     public static List<Predicate> getFieldValue(AbstractPo entity, Root<?> root, CriteriaBuilder cb) {
+
         List<Predicate> lp = new ArrayList<>();
         Class<?> cls = entity.getClass();
         Field[] fields = cls.getDeclaredFields();
@@ -100,13 +102,13 @@ public class MethodUtil {
         return lp;
     }
 
+
     /** 检查Set Get方法以及忽略Transient 的注解
-     * @Description
-     * @param methods Null
-     * @param field Null
+     * @author <a href="https://github.com/rothschil">Sam</a>
+     * @param methods   方法
+     * @param field 字段
      * @return boolean
-     * @date 20/12/22 15:13
-     */
+     **/
     public static boolean checkGetSetMethodAndAnnotation(Method[] methods,Field field){
         boolean result = true;
         String fieldGetName = StringUtils.parGetName(field.getName());
@@ -125,14 +127,13 @@ public class MethodUtil {
     }
 
     /**
-     * @Description
-     * @param cb No
-     * @param root No
-     * @param field No
-     * @param value No
-     * @return javax.persistence.criteria.Predicate
-     * @date 20/12/22 14:39
-     */
+     * @author <a href="https://github.com/rothschil">Sam</a>
+     * @param cb
+     * @param root
+     * @param field
+     * @param value
+     * @return Predicate
+     **/
     public static Predicate doInteger(CriteriaBuilder cb,Root<?> root,Field field,String value){
         return cb.equal(root.get(field.getName()).as(Integer.class), Integer.valueOf(value));
     }
